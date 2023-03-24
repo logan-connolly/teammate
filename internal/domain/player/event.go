@@ -1,6 +1,10 @@
 package player
 
-import "github.com/google/uuid"
+import (
+	"reflect"
+
+	"github.com/google/uuid"
+)
 
 // Event is a domain event marker.
 type Event interface {
@@ -14,7 +18,7 @@ type PlayerRegistered struct {
 }
 
 func (e PlayerRegistered) eventName() string {
-	return "PlayerRegistered"
+	return reflect.TypeOf(e).Name()
 }
 
 // PlayerActivated event.
@@ -23,7 +27,7 @@ type PlayerActivated struct {
 }
 
 func (e PlayerActivated) eventName() string {
-	return "PlayerActivated"
+	return reflect.TypeOf(e).Name()
 }
 
 // PlayerDeactivated event.
@@ -32,5 +36,5 @@ type PlayerDeactivated struct {
 }
 
 func (e PlayerDeactivated) eventName() string {
-	return "PlayerDeactivated"
+	return reflect.TypeOf(e).Name()
 }
