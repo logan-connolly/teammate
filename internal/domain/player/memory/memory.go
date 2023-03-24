@@ -1,7 +1,6 @@
 package memory
 
 import (
-	"fmt"
 	"sync"
 
 	"github.com/google/uuid"
@@ -33,7 +32,7 @@ func (r *MemoryPlayerRepository) Get(id uuid.UUID) (*player.Player, error) {
 // Add stores a new player in the repository.
 func (r *MemoryPlayerRepository) Add(p *player.Player) error {
 	if _, ok := r.players[p.GetID()]; ok {
-		return fmt.Errorf("player already exists: %w", player.ErrPlayerAlreadyExists)
+		return player.ErrPlayerAlreadyExists
 	}
 
 	r.Lock()
