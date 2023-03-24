@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
-	"github.com/logan-connolly/teammate/internal/core"
+	"github.com/logan-connolly/teammate/internal/entity"
 )
 
 var (
@@ -15,7 +15,7 @@ var (
 
 // Player is a aggregate that combines all entities needed to represent a player.
 type Player struct {
-	person    *core.Person
+	person    *entity.Person
 	activated bool
 
 	changes []Event
@@ -30,7 +30,7 @@ func NewPlayer(name string) (*Player, error) {
 		return p, ErrInvalidPerson
 	}
 
-	person := &core.Person{
+	person := &entity.Person{
 		ID:   uuid.New(),
 		Name: name,
 	}
@@ -100,7 +100,7 @@ func (p *Player) Deactivate() error {
 func (p *Player) Apply(event Event, new bool) {
 	switch e := event.(type) {
 	case *PlayerRegistered:
-		p.person = &core.Person{
+		p.person = &entity.Person{
 			ID:   e.ID,
 			Name: e.Name,
 		}
