@@ -19,11 +19,12 @@ func TestPlayer_NewPlayer(t *testing.T) {
 	}
 	testCases := []testCase{
 		{
-			test:        "Empty Name validation",
+			test:        "Empty name validation",
 			name:        "",
 			expectedErr: ErrInvalidPerson,
-		}, {
-			test:        "Valid Name",
+		},
+		{
+			test:        "Valid name",
 			name:        exampleName,
 			expectedErr: nil,
 		},
@@ -92,7 +93,8 @@ func TestPlayer_Activate(t *testing.T) {
 				&PlayerRegistered{ID: exampleUUID, Name: exampleName},
 			}),
 			expectedErr: ErrPlayerAlreadyActivated,
-		}, {
+		},
+		{
 			test: "Activate deactivated player",
 			player: NewPlayerFromEvents([]Event{
 				&PlayerRegistered{ID: exampleUUID, Name: exampleName},
@@ -128,7 +130,8 @@ func TestPlayer_Deactivate(t *testing.T) {
 				&PlayerRegistered{ID: exampleUUID, Name: exampleName},
 			}),
 			expectedErr: nil,
-		}, {
+		},
+		{
 			test: "Deactivate deactivated player",
 			player: NewPlayerFromEvents([]Event{
 				&PlayerRegistered{ID: exampleUUID, Name: exampleName},

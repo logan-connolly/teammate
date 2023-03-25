@@ -60,13 +60,13 @@ func TestMemoryPlayerRepository_Add(t *testing.T) {
 
 	testCases := []testCase{
 		{
-			test:        "Add Player",
+			test:        "Successfully add a player",
 			id:          anotherUUID,
 			name:        anotherName,
 			expectedErr: nil,
 		},
 		{
-			test:        "Player already exists",
+			test:        "Player already exists error",
 			id:          exampleUUID,
 			name:        exampleName,
 			expectedErr: player.ErrPlayerAlreadyExists,
@@ -100,13 +100,13 @@ func TestMemoryPlayerRepository_Update(t *testing.T) {
 
 	testCases := []testCase{
 		{
-			test:        "Update Player",
+			test:        "Update player",
 			register:    true,
 			deactivate:  true,
 			expectedErr: nil,
 		},
 		{
-			test:        "Player not updated",
+			test:        "Player has no changes",
 			register:    true,
 			deactivate:  false,
 			expectedErr: player.ErrPlayerHasNoUpdates,
