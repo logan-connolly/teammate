@@ -8,7 +8,7 @@ import (
 
 var (
 	ErrPlayerNotFound      = errors.New("the player was not found in the repository")
-	ErrPlayerAlreadyExists = errors.New("failed to add the player to the repository")
+	ErrPlayerAlreadyExists = errors.New("player already exists in repository")
 	ErrPlayerHasNoUpdates  = errors.New("failed to update player in the repository")
 )
 
