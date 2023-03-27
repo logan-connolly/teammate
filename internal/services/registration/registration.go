@@ -37,7 +37,7 @@ func WithPlayerRepository(r player.PlayerRepository) RegistrationConfiguration {
 	}
 }
 
-// WithMemoryCustomerRepository applies a memory player repository to the service.
+// WithMemoryPlayerRepository applies a memory player repository to the service.
 func WithMemoryPlayerRepository() RegistrationConfiguration {
 	r := memory.NewMemoryPlayerRepository()
 	return WithPlayerRepository(r)
