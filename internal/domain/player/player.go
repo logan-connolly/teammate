@@ -56,8 +56,8 @@ func NewPlayerFromEvents(events []Event) *Player {
 }
 
 // GetID returns the player root entity GetID.
-func (c *Player) GetID() uuid.UUID {
-	return c.person.ID
+func (p *Player) GetID() uuid.UUID {
+	return p.person.ID
 }
 
 // GetName returns the name of the player.
