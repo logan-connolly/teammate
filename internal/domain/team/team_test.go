@@ -66,15 +66,15 @@ func TestTeam_NewTeamEvents(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
-			p := NewTeamFromEvents(tc.events)
-			if p.GetID() != exampleUUID {
-				t.Errorf("Expected %v, got %v", exampleUUID, p.GetID())
+			team := NewTeamFromEvents(tc.events)
+			if team.GetID() != exampleUUID {
+				t.Errorf("Expected %v, got %v", exampleUUID, team.GetID())
 			}
-			if p.GetName() != exampleName {
-				t.Errorf("Expected %v, got %v", exampleName, p.GetName())
+			if team.GetName() != exampleName {
+				t.Errorf("Expected %v, got %v", exampleName, team.GetName())
 			}
-			if p.IsActivated() != tc.expectedIsActivated {
-				t.Errorf("Expected %v, got %v", tc.expectedIsActivated, p.IsActivated())
+			if team.IsActivated() != tc.expectedIsActivated {
+				t.Errorf("Expected %v, got %v", tc.expectedIsActivated, team.IsActivated())
 			}
 		})
 	}
@@ -156,15 +156,15 @@ func TestTeam_Deactivate(t *testing.T) {
 
 func TestTeam_Events(t *testing.T) {
 	t.Run("Event log is populated", func(t *testing.T) {
-		p, err := NewTeam(exampleName)
+		team, err := NewTeam(exampleName)
 		if err != nil {
 			t.Fatalf("Did not expect an error: %v", err)
 		}
-		p.Deactivate()
-		p.Activate()
+		team.Deactivate()
+		team.Activate()
 
 		want := 3
-		got := len(p.Events())
+		got := len(team.Events())
 
 		if want != got {
 			t.Errorf("Expected %v, got %v", want, got)
@@ -174,14 +174,14 @@ func TestTeam_Events(t *testing.T) {
 
 func TestTeam_Version(t *testing.T) {
 	t.Run("Version is properly updated", func(t *testing.T) {
-		p := NewTeamFromEvents([]Event{
+		team := NewTeamFromEvents([]Event{
 			&TeamRegistered{ID: exampleUUID, Name: exampleName},
 			&TeamDeactivated{ID: exampleUUID},
 			&TeamActivated{ID: exampleUUID},
 		})
 
 		want := 3
-		got := p.Version()
+		got := team.Version()
 
 		if want != got {
 			t.Errorf("Expected %v, got %v", want, got)
