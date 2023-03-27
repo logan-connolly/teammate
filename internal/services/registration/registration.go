@@ -2,7 +2,9 @@ package registration
 
 import (
 	"github.com/logan-connolly/teammate/internal/domain/player"
-	"github.com/logan-connolly/teammate/internal/domain/player/memory"
+	playerMemory "github.com/logan-connolly/teammate/internal/domain/player/memory"
+	"github.com/logan-connolly/teammate/internal/domain/team"
+	teamMemory "github.com/logan-connolly/teammate/internal/domain/team/memory"
 )
 
 // RegistrationConfiguration is a function that modifies the service.
@@ -11,6 +13,7 @@ type RegistrationConfiguration func(s *RegistrationService) error
 // RegistrationService is a implementation of the RegistrationService.
 type RegistrationService struct {
 	players player.PlayerRepository
+	teams   team.TeamRepository
 }
 
 // NewRegistrationService accepts configs and returns a new service.
@@ -36,6 +39,20 @@ func WithPlayerRepository(r player.PlayerRepository) RegistrationConfiguration {
 
 // WithMemoryPlayerRepository applies a memory player repository to the service.
 func WithMemoryPlayerRepository() RegistrationConfiguration {
-	r := memory.NewMemoryPlayerRepository()
+	r := playerMemory.NewMemoryPlayerRepository()
 	return WithPlayerRepository(r)
+}
+
+// WithTeamRepository applies a given team repository to the service.
+func WithTeamRepository(r team.TeamRepository) RegistrationConfiguration {
+	return func(s *RegistrationService) error {
+		s.teams = r
+		return nil
+	}
+}
+
+// WithMemoryTeamRepository applies a memory team repository to the service.
+func WithMemoryTeamRepository() RegistrationConfiguration {
+	r := teamMemory.NewMemoryTeamRepository()
+	return WithTeamRepository(r)
 }

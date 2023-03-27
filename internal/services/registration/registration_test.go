@@ -18,8 +18,13 @@ func TestNewRegistrationService(t *testing.T) {
 
 	testCases := []testCase{
 		{
-			test:        "With in-memory repository",
+			test:        "With in-memory player repository",
 			testConfig:  WithMemoryPlayerRepository,
+			expectedErr: nil,
+		},
+		{
+			test:        "With in-memory team repository",
+			testConfig:  WithMemoryTeamRepository,
 			expectedErr: nil,
 		},
 		{
