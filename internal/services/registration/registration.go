@@ -1,9 +1,6 @@
 package registration
 
 import (
-	"log"
-
-	"github.com/google/uuid"
 	"github.com/logan-connolly/teammate/internal/domain/player"
 	"github.com/logan-connolly/teammate/internal/domain/player/memory"
 )
@@ -41,20 +38,4 @@ func WithPlayerRepository(r player.PlayerRepository) RegistrationConfiguration {
 func WithMemoryPlayerRepository() RegistrationConfiguration {
 	r := memory.NewMemoryPlayerRepository()
 	return WithPlayerRepository(r)
-}
-
-// RegisterPlayer will register a player if input is valid.
-func (s *RegistrationService) RegisterPlayer(name string) (uuid.UUID, error) {
-	p, err := player.NewPlayer(name)
-	if err != nil {
-		return uuid.Nil, err
-	}
-
-	err = s.players.Add(p)
-	if err != nil {
-		return uuid.Nil, err
-	}
-
-	log.Printf("Player: %s has been registered.", p.GetID())
-	return p.GetID(), nil
 }
