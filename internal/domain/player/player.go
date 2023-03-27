@@ -10,7 +10,7 @@ import (
 var (
 	ErrInvalidPerson            = errors.New("player has to be a valid person")
 	ErrPlayerAlreadyActivated   = errors.New("player is already activated")
-	ErrPlayerAlreadyDeactivated = errors.New("player is inactive")
+	ErrPlayerAlreadyDeactivated = errors.New("player is already inactive")
 )
 
 // Player is a aggregate that combines all entities needed to represent a player.
