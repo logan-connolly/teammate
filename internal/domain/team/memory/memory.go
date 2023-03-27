@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/logan-connolly/teammate/internal/domain/team"
+	"github.com/logan-connolly/teammate/internal/entity"
 )
 
 // MemoryTeamRepository is an in-memory team repository.
@@ -21,8 +22,8 @@ func NewMemoryTeamRepository() *MemoryTeamRepository {
 }
 
 // Get retrieves a team by ID.
-func (r *MemoryTeamRepository) Get(id uuid.UUID) (*team.Team, error) {
-	if events, ok := r.teams[id]; ok {
+func (r *MemoryTeamRepository) Get(g *entity.Group) (*team.Team, error) {
+	if events, ok := r.teams[g.ID]; ok {
 		return team.NewTeamFromEvents(events), nil
 	}
 

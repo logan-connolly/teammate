@@ -3,7 +3,7 @@ package player
 import (
 	"errors"
 
-	"github.com/google/uuid"
+	"github.com/logan-connolly/teammate/internal/entity"
 )
 
 var (
@@ -14,7 +14,7 @@ var (
 
 // PlayerRepository defines the interface for the player repository.
 type PlayerRepository interface {
-	Get(uuid.UUID) (*Player, error)
+	Get(*entity.Person) (*Player, error)
 	Add(*Player) error
 	Update(*Player) error
 }

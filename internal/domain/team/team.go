@@ -23,21 +23,16 @@ type Team struct {
 }
 
 // NewTeam is a factory to create a new Team aggregate.
-func NewTeam(name string) (*Team, error) {
+func NewTeam(g *entity.Group) (*Team, error) {
 	t := &Team{}
 
-	if name == "" {
+	if g.Name == "" {
 		return t, ErrInvalidGroup
 	}
 
-	group := &entity.Group{
-		ID:   uuid.New(),
-		Name: name,
-	}
-
 	t.register(&TeamRegistered{
-		ID:   group.ID,
-		Name: group.Name,
+		ID:   g.ID,
+		Name: g.Name,
 	})
 
 	return t, nil

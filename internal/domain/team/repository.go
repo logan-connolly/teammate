@@ -3,7 +3,7 @@ package team
 import (
 	"errors"
 
-	"github.com/google/uuid"
+	"github.com/logan-connolly/teammate/internal/entity"
 )
 
 var (
@@ -14,7 +14,7 @@ var (
 
 // TeamRepository defines the interface for the team repository.
 type TeamRepository interface {
-	Get(uuid.UUID) (*Team, error)
+	Get(*entity.Group) (*Team, error)
 	Add(*Team) error
 	Update(*Team) error
 }

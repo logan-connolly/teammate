@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/logan-connolly/teammate/internal/domain/player"
+	"github.com/logan-connolly/teammate/internal/entity"
 )
 
 // MemoryPlayerRepository is an in-memory player repository.
@@ -21,8 +22,8 @@ func NewMemoryPlayerRepository() *MemoryPlayerRepository {
 }
 
 // Get retrieves a player by ID.
-func (r *MemoryPlayerRepository) Get(id uuid.UUID) (*player.Player, error) {
-	if events, ok := r.players[id]; ok {
+func (r *MemoryPlayerRepository) Get(p *entity.Person) (*player.Player, error) {
+	if events, ok := r.players[p.ID]; ok {
 		return player.NewPlayerFromEvents(events), nil
 	}
 

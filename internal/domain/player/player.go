@@ -23,24 +23,19 @@ type Player struct {
 }
 
 // NewPlayer is a factory to create a new Player aggregate.
-func NewPlayer(name string) (*Player, error) {
-	p := &Player{}
+func NewPlayer(p *entity.Person) (*Player, error) {
+	player := &Player{}
 
-	if name == "" {
-		return p, ErrInvalidPerson
+	if p.Name == "" {
+		return player, ErrInvalidPerson
 	}
 
-	person := &entity.Person{
-		ID:   uuid.New(),
-		Name: name,
-	}
-
-	p.register(&PlayerRegistered{
-		ID:   person.ID,
-		Name: person.Name,
+	player.register(&PlayerRegistered{
+		ID:   p.ID,
+		Name: p.Name,
 	})
 
-	return p, nil
+	return player, nil
 }
 
 // NewFromEvents is a helper method that creates a new player

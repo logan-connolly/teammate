@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/logan-connolly/teammate/internal/entity"
 )
 
 var (
@@ -14,25 +15,25 @@ var (
 func TestTeam_NewTeam(t *testing.T) {
 	type testCase struct {
 		test        string
-		name        string
+		group       *entity.Group
 		expectedErr error
 	}
 	testCases := []testCase{
 		{
 			test:        "Empty name validation",
-			name:        "",
+			group:       &entity.Group{ID: exampleUUID, Name: ""},
 			expectedErr: ErrInvalidGroup,
 		},
 		{
 			test:        "Valid name",
-			name:        exampleName,
+			group:       &entity.Group{ID: exampleUUID, Name: exampleName},
 			expectedErr: nil,
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
-			_, err := NewTeam(tc.name)
+			_, err := NewTeam(tc.group)
 			if err != tc.expectedErr {
 				t.Errorf("Expected error %v, got %v", tc.expectedErr, err)
 			}
@@ -156,7 +157,7 @@ func TestTeam_Deactivate(t *testing.T) {
 
 func TestTeam_Events(t *testing.T) {
 	t.Run("Event log is populated", func(t *testing.T) {
-		team, err := NewTeam(exampleName)
+		team, err := NewTeam(&entity.Group{ID: exampleUUID, Name: exampleName})
 		if err != nil {
 			t.Fatalf("Did not expect an error: %v", err)
 		}

@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/logan-connolly/teammate/internal/entity"
 )
 
 var (
@@ -14,25 +15,25 @@ var (
 func TestPlayer_NewPlayer(t *testing.T) {
 	type testCase struct {
 		test        string
-		name        string
+		person      *entity.Person
 		expectedErr error
 	}
 	testCases := []testCase{
 		{
 			test:        "Empty name validation",
-			name:        "",
+			person:      &entity.Person{ID: exampleUUID, Name: ""},
 			expectedErr: ErrInvalidPerson,
 		},
 		{
 			test:        "Valid name",
-			name:        exampleName,
+			person:      &entity.Person{ID: exampleUUID, Name: exampleName},
 			expectedErr: nil,
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
-			_, err := NewPlayer(tc.name)
+			_, err := NewPlayer(tc.person)
 			if err != tc.expectedErr {
 				t.Errorf("Expected error %v, got %v", tc.expectedErr, err)
 			}
@@ -156,15 +157,15 @@ func TestPlayer_Deactivate(t *testing.T) {
 
 func TestPlayer_Events(t *testing.T) {
 	t.Run("Event log is populated", func(t *testing.T) {
-		p, err := NewPlayer(exampleName)
+		player, err := NewPlayer(&entity.Person{ID: exampleUUID, Name: exampleName})
 		if err != nil {
 			t.Fatalf("Did not expect an error: %v", err)
 		}
-		p.Deactivate()
-		p.Activate()
+		player.Deactivate()
+		player.Activate()
 
 		want := 3
-		got := len(p.Events())
+		got := len(player.Events())
 
 		if want != got {
 			t.Errorf("Expected %v, got %v", want, got)

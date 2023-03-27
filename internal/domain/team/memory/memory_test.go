@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/logan-connolly/teammate/internal/domain/team"
+	"github.com/logan-connolly/teammate/internal/entity"
 )
 
 var (
@@ -18,18 +19,18 @@ var (
 func TestMemoryTeamRepository_Get(t *testing.T) {
 	type testCase struct {
 		test        string
-		id          uuid.UUID
+		group       *entity.Group
 		expectedErr error
 	}
 
 	testCases := []testCase{
 		{
-			test:        "No Team By ID",
-			id:          anotherUUID,
+			test:        "No team found with this group",
+			group:       &entity.Group{ID: anotherUUID, Name: anotherName},
 			expectedErr: team.ErrTeamNotFound,
 		}, {
-			test:        "Team By ID",
-			id:          exampleUUID,
+			test:        "Team found",
+			group:       &entity.Group{ID: exampleUUID, Name: exampleName},
 			expectedErr: nil,
 		},
 	}
@@ -41,7 +42,7 @@ func TestMemoryTeamRepository_Get(t *testing.T) {
 				&team.TeamRegistered{ID: exampleUUID, Name: exampleName},
 			}
 
-			_, err := repo.Get(tc.id)
+			_, err := repo.Get(tc.group)
 
 			if !errors.Is(err, tc.expectedErr) {
 				t.Errorf("Expected error %v, got %v", tc.expectedErr, err)
