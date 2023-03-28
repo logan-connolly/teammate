@@ -1,15 +1,16 @@
-package player
+package model
 
 import (
 	"testing"
 
 	"github.com/google/uuid"
 	"github.com/logan-connolly/teammate/internal/entity"
+	"github.com/logan-connolly/teammate/internal/team/domain/event"
 )
 
 var (
-	exampleUUID = uuid.MustParse("f55e93f8-c952-11ed-afa1-0242ac120002")
-	exampleName = "Logan"
+	examplePlayerUUID = uuid.MustParse("f55e93f8-c952-11ed-afa1-0242ac120002")
+	examplePlayerName = "Logan"
 )
 
 func TestPlayer_NewPlayer(t *testing.T) {
@@ -21,12 +22,12 @@ func TestPlayer_NewPlayer(t *testing.T) {
 	testCases := []testCase{
 		{
 			test:        "Empty name validation",
-			person:      &entity.Person{ID: exampleUUID, Name: ""},
+			person:      &entity.Person{ID: examplePlayerUUID, Name: ""},
 			expectedErr: ErrInvalidPerson,
 		},
 		{
 			test:        "Valid name",
-			person:      &entity.Person{ID: exampleUUID, Name: exampleName},
+			person:      &entity.Person{ID: examplePlayerUUID, Name: examplePlayerName},
 			expectedErr: nil,
 		},
 	}
@@ -41,25 +42,25 @@ func TestPlayer_NewPlayer(t *testing.T) {
 	}
 }
 
-func TestPlayer_NewPlayerEvents(t *testing.T) {
+func TestPlayer_NewEvents(t *testing.T) {
 	type testCase struct {
 		test                string
-		events              []Event
+		events              []event.Event
 		expectedIsActivated bool
 	}
 	testCases := []testCase{
 		{
 			test: "Player registered",
-			events: []Event{
-				&PlayerRegistered{ID: exampleUUID, Name: exampleName},
+			events: []event.Event{
+				&event.PlayerRegistered{ID: examplePlayerUUID, Name: examplePlayerName},
 			},
 			expectedIsActivated: true,
 		},
 		{
 			test: "Player registered and deactivated",
-			events: []Event{
-				&PlayerRegistered{ID: exampleUUID, Name: exampleName},
-				&PlayerDeactivated{ID: exampleUUID},
+			events: []event.Event{
+				&event.PlayerRegistered{ID: examplePlayerUUID, Name: examplePlayerName},
+				&event.PlayerDeactivated{ID: examplePlayerUUID},
 			},
 			expectedIsActivated: false,
 		},
@@ -68,11 +69,11 @@ func TestPlayer_NewPlayerEvents(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
 			p := NewPlayerFromEvents(tc.events)
-			if p.GetID() != exampleUUID {
-				t.Errorf("Expected %v, got %v", exampleUUID, p.GetID())
+			if p.GetID() != examplePlayerUUID {
+				t.Errorf("Expected %v, got %v", examplePlayerUUID, p.GetID())
 			}
-			if p.GetName() != exampleName {
-				t.Errorf("Expected %v, got %v", exampleName, p.GetName())
+			if p.GetName() != examplePlayerName {
+				t.Errorf("Expected %v, got %v", examplePlayerName, p.GetName())
 			}
 			if p.IsActivated() != tc.expectedIsActivated {
 				t.Errorf("Expected %v, got %v", tc.expectedIsActivated, p.IsActivated())
@@ -90,16 +91,16 @@ func TestPlayer_Activate(t *testing.T) {
 	testCases := []testCase{
 		{
 			test: "Activate active player",
-			player: NewPlayerFromEvents([]Event{
-				&PlayerRegistered{ID: exampleUUID, Name: exampleName},
+			player: NewPlayerFromEvents([]event.Event{
+				&event.PlayerRegistered{ID: examplePlayerUUID, Name: examplePlayerName},
 			}),
 			expectedErr: ErrPlayerAlreadyActivated,
 		},
 		{
 			test: "Activate deactivated player",
-			player: NewPlayerFromEvents([]Event{
-				&PlayerRegistered{ID: exampleUUID, Name: exampleName},
-				&PlayerDeactivated{ID: exampleUUID},
+			player: NewPlayerFromEvents([]event.Event{
+				&event.PlayerRegistered{ID: examplePlayerUUID, Name: examplePlayerName},
+				&event.PlayerDeactivated{ID: examplePlayerUUID},
 			}),
 			expectedErr: nil,
 		},
@@ -127,16 +128,16 @@ func TestPlayer_Deactivate(t *testing.T) {
 	testCases := []testCase{
 		{
 			test: "Deactivate active player",
-			player: NewPlayerFromEvents([]Event{
-				&PlayerRegistered{ID: exampleUUID, Name: exampleName},
+			player: NewPlayerFromEvents([]event.Event{
+				&event.PlayerRegistered{ID: examplePlayerUUID, Name: examplePlayerName},
 			}),
 			expectedErr: nil,
 		},
 		{
 			test: "Deactivate deactivated player",
-			player: NewPlayerFromEvents([]Event{
-				&PlayerRegistered{ID: exampleUUID, Name: exampleName},
-				&PlayerDeactivated{ID: exampleUUID},
+			player: NewPlayerFromEvents([]event.Event{
+				&event.PlayerRegistered{ID: examplePlayerUUID, Name: examplePlayerName},
+				&event.PlayerDeactivated{ID: examplePlayerUUID},
 			}),
 			expectedErr: ErrPlayerAlreadyDeactivated,
 		},
@@ -157,7 +158,7 @@ func TestPlayer_Deactivate(t *testing.T) {
 
 func TestPlayer_Events(t *testing.T) {
 	t.Run("Event log is populated", func(t *testing.T) {
-		player, err := NewPlayer(&entity.Person{ID: exampleUUID, Name: exampleName})
+		player, err := NewPlayer(&entity.Person{ID: examplePlayerUUID, Name: examplePlayerName})
 		if err != nil {
 			t.Fatalf("Did not expect an error: %v", err)
 		}
@@ -175,10 +176,10 @@ func TestPlayer_Events(t *testing.T) {
 
 func TestPlayer_Version(t *testing.T) {
 	t.Run("Version is properly updated", func(t *testing.T) {
-		p := NewPlayerFromEvents([]Event{
-			&PlayerRegistered{ID: exampleUUID, Name: exampleName},
-			&PlayerDeactivated{ID: exampleUUID},
-			&PlayerActivated{ID: exampleUUID},
+		p := NewPlayerFromEvents([]event.Event{
+			&event.PlayerRegistered{ID: examplePlayerUUID, Name: examplePlayerName},
+			&event.PlayerDeactivated{ID: examplePlayerUUID},
+			&event.PlayerActivated{ID: examplePlayerUUID},
 		})
 
 		want := 3

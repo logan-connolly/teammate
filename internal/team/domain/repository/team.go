@@ -1,9 +1,10 @@
-package team
+package repository
 
 import (
 	"errors"
 
 	"github.com/logan-connolly/teammate/internal/entity"
+	"github.com/logan-connolly/teammate/internal/team/domain/model"
 )
 
 var (
@@ -14,7 +15,7 @@ var (
 
 // TeamRepository defines the interface for the team repository.
 type TeamRepository interface {
-	Get(*entity.Group) (*Team, error)
-	Add(*Team) error
-	Update(*Team) error
+	Get(*entity.Group) (*model.Team, error)
+	Add(*model.Team) error
+	Update(*model.Team) error
 }

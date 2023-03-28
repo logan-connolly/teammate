@@ -4,36 +4,38 @@ import (
 	"sync"
 
 	"github.com/google/uuid"
-	"github.com/logan-connolly/teammate/internal/domain/team"
 	"github.com/logan-connolly/teammate/internal/entity"
+	"github.com/logan-connolly/teammate/internal/team/domain/event"
+	"github.com/logan-connolly/teammate/internal/team/domain/model"
+	"github.com/logan-connolly/teammate/internal/team/domain/repository"
 )
 
 // MemoryTeamRepository is an in-memory team repository.
 type MemoryTeamRepository struct {
-	teams map[uuid.UUID][]team.Event
+	teams map[uuid.UUID][]event.Event
 	sync.Mutex
 }
 
 // NewMemoryTeamRepository intializes an in-memory team repository.
 func NewMemoryTeamRepository() *MemoryTeamRepository {
 	return &MemoryTeamRepository{
-		teams: make(map[uuid.UUID][]team.Event),
+		teams: make(map[uuid.UUID][]event.Event),
 	}
 }
 
 // Get retrieves a team by ID.
-func (r *MemoryTeamRepository) Get(g *entity.Group) (*team.Team, error) {
+func (r *MemoryTeamRepository) Get(g *entity.Group) (*model.Team, error) {
 	if events, ok := r.teams[g.ID]; ok {
-		return team.NewTeamFromEvents(events), nil
+		return model.NewTeamFromEvents(events), nil
 	}
 
-	return &team.Team{}, team.ErrTeamNotFound
+	return &model.Team{}, repository.ErrTeamNotFound
 }
 
 // Add stores a new team in the repository.
-func (r *MemoryTeamRepository) Add(t *team.Team) error {
+func (r *MemoryTeamRepository) Add(t *model.Team) error {
 	if _, ok := r.teams[t.GetID()]; ok {
-		return team.ErrTeamAlreadyExists
+		return repository.ErrTeamAlreadyExists
 	}
 
 	r.Lock()
@@ -44,15 +46,15 @@ func (r *MemoryTeamRepository) Add(t *team.Team) error {
 }
 
 // Update appends changes to team in the repository.
-func (r *MemoryTeamRepository) Update(t *team.Team) error {
+func (r *MemoryTeamRepository) Update(t *model.Team) error {
 	storedEvents, ok := r.teams[t.GetID()]
 	if !ok {
-		return team.ErrTeamNotFound
+		return repository.ErrTeamNotFound
 	}
 
 	newEvents := t.Events()
 	if len(newEvents) == 0 {
-		return team.ErrTeamHasNoUpdates
+		return repository.ErrTeamHasNoUpdates
 	}
 
 	r.Lock()

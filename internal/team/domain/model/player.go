@@ -1,10 +1,11 @@
-package player
+package model
 
 import (
 	"errors"
 
 	"github.com/google/uuid"
 	"github.com/logan-connolly/teammate/internal/entity"
+	"github.com/logan-connolly/teammate/internal/team/domain/event"
 )
 
 var (
@@ -18,7 +19,7 @@ type Player struct {
 	person    *entity.Person
 	activated bool
 
-	changes []Event
+	changes []event.Event
 	version int
 }
 
@@ -30,7 +31,7 @@ func NewPlayer(p *entity.Person) (*Player, error) {
 		return player, ErrInvalidPerson
 	}
 
-	player.register(&PlayerRegistered{
+	player.register(&event.PlayerRegistered{
 		ID:   p.ID,
 		Name: p.Name,
 	})
@@ -40,7 +41,7 @@ func NewPlayer(p *entity.Person) (*Player, error) {
 
 // NewFromEvents is a helper method that creates a new player
 // from a series of events.
-func NewPlayerFromEvents(events []Event) *Player {
+func NewPlayerFromEvents(events []event.Event) *Player {
 	p := &Player{}
 
 	for _, event := range events {
@@ -71,7 +72,7 @@ func (p *Player) Activate() error {
 		return ErrPlayerAlreadyActivated
 	}
 
-	p.register(&PlayerActivated{
+	p.register(&event.PlayerActivated{
 		ID: p.person.ID,
 	})
 
@@ -84,7 +85,7 @@ func (p *Player) Deactivate() error {
 		return ErrPlayerAlreadyDeactivated
 	}
 
-	p.register(&PlayerDeactivated{
+	p.register(&event.PlayerDeactivated{
 		ID: p.person.ID,
 	})
 
@@ -92,19 +93,19 @@ func (p *Player) Deactivate() error {
 }
 
 // Apply applies player events to the player aggregate.
-func (p *Player) Apply(event Event, new bool) {
-	switch e := event.(type) {
-	case *PlayerRegistered:
+func (p *Player) Apply(e event.Event, new bool) {
+	switch pe := e.(type) {
+	case *event.PlayerRegistered:
 		p.person = &entity.Person{
-			ID:   e.ID,
-			Name: e.Name,
+			ID:   pe.ID,
+			Name: pe.Name,
 		}
 		p.activated = true
 
-	case *PlayerDeactivated:
+	case *event.PlayerDeactivated:
 		p.activated = false
 
-	case *PlayerActivated:
+	case *event.PlayerActivated:
 		p.activated = true
 	}
 
@@ -114,7 +115,7 @@ func (p *Player) Apply(event Event, new bool) {
 }
 
 // Events returns the uncommitted events from the player aggregate.
-func (p Player) Events() []Event {
+func (p Player) Events() []event.Event {
 	return p.changes
 }
 
@@ -123,7 +124,7 @@ func (p Player) Version() int {
 	return p.version
 }
 
-func (p *Player) register(event Event) {
+func (p *Player) register(event event.Event) {
 	p.changes = append(p.changes, event)
 	p.Apply(event, true)
 }

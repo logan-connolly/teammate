@@ -1,10 +1,11 @@
-package team
+package model
 
 import (
 	"errors"
 
 	"github.com/google/uuid"
 	"github.com/logan-connolly/teammate/internal/entity"
+	"github.com/logan-connolly/teammate/internal/team/domain/event"
 )
 
 var (
@@ -18,7 +19,7 @@ type Team struct {
 	group     *entity.Group
 	activated bool
 
-	changes []Event
+	changes []event.Event
 	version int
 }
 
@@ -30,7 +31,7 @@ func NewTeam(g *entity.Group) (*Team, error) {
 		return t, ErrInvalidGroup
 	}
 
-	t.register(&TeamRegistered{
+	t.register(&event.TeamRegistered{
 		ID:   g.ID,
 		Name: g.Name,
 	})
@@ -40,7 +41,7 @@ func NewTeam(g *entity.Group) (*Team, error) {
 
 // NewFromEvents is a helper method that creates a new team
 // from a series of events.
-func NewTeamFromEvents(events []Event) *Team {
+func NewTeamFromEvents(events []event.Event) *Team {
 	t := &Team{}
 
 	for _, event := range events {
@@ -71,7 +72,7 @@ func (t *Team) Activate() error {
 		return ErrTeamAlreadyActivated
 	}
 
-	t.register(&TeamActivated{
+	t.register(&event.TeamActivated{
 		ID: t.group.ID,
 	})
 
@@ -84,7 +85,7 @@ func (t *Team) Deactivate() error {
 		return ErrTeamAlreadyDeactivated
 	}
 
-	t.register(&TeamDeactivated{
+	t.register(&event.TeamDeactivated{
 		ID: t.group.ID,
 	})
 
@@ -92,19 +93,19 @@ func (t *Team) Deactivate() error {
 }
 
 // Apply applies team events to the team aggregate.
-func (t *Team) Apply(event Event, new bool) {
-	switch e := event.(type) {
-	case *TeamRegistered:
+func (t *Team) Apply(e event.Event, new bool) {
+	switch te := e.(type) {
+	case *event.TeamRegistered:
 		t.group = &entity.Group{
-			ID:   e.ID,
-			Name: e.Name,
+			ID:   te.ID,
+			Name: te.Name,
 		}
 		t.activated = true
 
-	case *TeamDeactivated:
+	case *event.TeamDeactivated:
 		t.activated = false
 
-	case *TeamActivated:
+	case *event.TeamActivated:
 		t.activated = true
 	}
 
@@ -114,7 +115,7 @@ func (t *Team) Apply(event Event, new bool) {
 }
 
 // Events returns the uncommitted events from the team aggregate.
-func (t Team) Events() []Event {
+func (t Team) Events() []event.Event {
 	return t.changes
 }
 
@@ -123,7 +124,7 @@ func (t Team) Version() int {
 	return t.version
 }
 
-func (t *Team) register(event Event) {
+func (t *Team) register(event event.Event) {
 	t.changes = append(t.changes, event)
 	t.Apply(event, true)
 }

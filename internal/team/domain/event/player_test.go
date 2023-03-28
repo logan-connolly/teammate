@@ -1,8 +1,8 @@
-package player
+package event
 
 import "testing"
 
-func TestEvent(t *testing.T) {
+func TestPlayerEvent(t *testing.T) {
 	type testCase struct {
 		test     string
 		event    Event

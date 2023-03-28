@@ -1,15 +1,10 @@
-package player
+package event
 
 import (
 	"reflect"
 
 	"github.com/google/uuid"
 )
-
-// Event is a domain event marker.
-type Event interface {
-	eventName() string
-}
 
 // PlayerRegistered event.
 type PlayerRegistered struct {

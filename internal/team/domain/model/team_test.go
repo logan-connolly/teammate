@@ -1,15 +1,16 @@
-package team
+package model
 
 import (
 	"testing"
 
 	"github.com/google/uuid"
 	"github.com/logan-connolly/teammate/internal/entity"
+	"github.com/logan-connolly/teammate/internal/team/domain/event"
 )
 
 var (
-	exampleUUID = uuid.MustParse("f55e93f8-c952-11ed-afa1-0242ac120002")
-	exampleName = "Virginia"
+	exampleTeamUUID = uuid.MustParse("f55e93f8-c952-11ed-afa1-0242ac120002")
+	exampleTeamName = "Virginia"
 )
 
 func TestTeam_NewTeam(t *testing.T) {
@@ -21,12 +22,12 @@ func TestTeam_NewTeam(t *testing.T) {
 	testCases := []testCase{
 		{
 			test:        "Empty name validation",
-			group:       &entity.Group{ID: exampleUUID, Name: ""},
+			group:       &entity.Group{ID: exampleTeamUUID, Name: ""},
 			expectedErr: ErrInvalidGroup,
 		},
 		{
 			test:        "Valid name",
-			group:       &entity.Group{ID: exampleUUID, Name: exampleName},
+			group:       &entity.Group{ID: exampleTeamUUID, Name: exampleTeamName},
 			expectedErr: nil,
 		},
 	}
@@ -41,25 +42,25 @@ func TestTeam_NewTeam(t *testing.T) {
 	}
 }
 
-func TestTeam_NewTeamEvents(t *testing.T) {
+func TestTeam_NewEvents(t *testing.T) {
 	type testCase struct {
 		test                string
-		events              []Event
+		events              []event.Event
 		expectedIsActivated bool
 	}
 	testCases := []testCase{
 		{
 			test: "Team registered",
-			events: []Event{
-				&TeamRegistered{ID: exampleUUID, Name: exampleName},
+			events: []event.Event{
+				&event.TeamRegistered{ID: exampleTeamUUID, Name: exampleTeamName},
 			},
 			expectedIsActivated: true,
 		},
 		{
 			test: "Team registered and deactivated",
-			events: []Event{
-				&TeamRegistered{ID: exampleUUID, Name: exampleName},
-				&TeamDeactivated{ID: exampleUUID},
+			events: []event.Event{
+				&event.TeamRegistered{ID: exampleTeamUUID, Name: exampleTeamName},
+				&event.TeamDeactivated{ID: exampleTeamUUID},
 			},
 			expectedIsActivated: false,
 		},
@@ -68,11 +69,11 @@ func TestTeam_NewTeamEvents(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
 			team := NewTeamFromEvents(tc.events)
-			if team.GetID() != exampleUUID {
-				t.Errorf("Expected %v, got %v", exampleUUID, team.GetID())
+			if team.GetID() != exampleTeamUUID {
+				t.Errorf("Expected %v, got %v", exampleTeamUUID, team.GetID())
 			}
-			if team.GetName() != exampleName {
-				t.Errorf("Expected %v, got %v", exampleName, team.GetName())
+			if team.GetName() != exampleTeamName {
+				t.Errorf("Expected %v, got %v", exampleTeamName, team.GetName())
 			}
 			if team.IsActivated() != tc.expectedIsActivated {
 				t.Errorf("Expected %v, got %v", tc.expectedIsActivated, team.IsActivated())
@@ -90,16 +91,16 @@ func TestTeam_Activate(t *testing.T) {
 	testCases := []testCase{
 		{
 			test: "Activate active team",
-			team: NewTeamFromEvents([]Event{
-				&TeamRegistered{ID: exampleUUID, Name: exampleName},
+			team: NewTeamFromEvents([]event.Event{
+				&event.TeamRegistered{ID: exampleTeamUUID, Name: exampleTeamName},
 			}),
 			expectedErr: ErrTeamAlreadyActivated,
 		},
 		{
 			test: "Activate deactivated team",
-			team: NewTeamFromEvents([]Event{
-				&TeamRegistered{ID: exampleUUID, Name: exampleName},
-				&TeamDeactivated{ID: exampleUUID},
+			team: NewTeamFromEvents([]event.Event{
+				&event.TeamRegistered{ID: exampleTeamUUID, Name: exampleTeamName},
+				&event.TeamDeactivated{ID: exampleTeamUUID},
 			}),
 			expectedErr: nil,
 		},
@@ -127,16 +128,16 @@ func TestTeam_Deactivate(t *testing.T) {
 	testCases := []testCase{
 		{
 			test: "Deactivate active team",
-			team: NewTeamFromEvents([]Event{
-				&TeamRegistered{ID: exampleUUID, Name: exampleName},
+			team: NewTeamFromEvents([]event.Event{
+				&event.TeamRegistered{ID: exampleTeamUUID, Name: exampleTeamName},
 			}),
 			expectedErr: nil,
 		},
 		{
 			test: "Deactivate deactivated team",
-			team: NewTeamFromEvents([]Event{
-				&TeamRegistered{ID: exampleUUID, Name: exampleName},
-				&TeamDeactivated{ID: exampleUUID},
+			team: NewTeamFromEvents([]event.Event{
+				&event.TeamRegistered{ID: exampleTeamUUID, Name: exampleTeamName},
+				&event.TeamDeactivated{ID: exampleTeamUUID},
 			}),
 			expectedErr: ErrTeamAlreadyDeactivated,
 		},
@@ -157,7 +158,7 @@ func TestTeam_Deactivate(t *testing.T) {
 
 func TestTeam_Events(t *testing.T) {
 	t.Run("Event log is populated", func(t *testing.T) {
-		team, err := NewTeam(&entity.Group{ID: exampleUUID, Name: exampleName})
+		team, err := NewTeam(&entity.Group{ID: exampleTeamUUID, Name: exampleTeamName})
 		if err != nil {
 			t.Fatalf("Did not expect an error: %v", err)
 		}
@@ -175,10 +176,10 @@ func TestTeam_Events(t *testing.T) {
 
 func TestTeam_Version(t *testing.T) {
 	t.Run("Version is properly updated", func(t *testing.T) {
-		team := NewTeamFromEvents([]Event{
-			&TeamRegistered{ID: exampleUUID, Name: exampleName},
-			&TeamDeactivated{ID: exampleUUID},
-			&TeamActivated{ID: exampleUUID},
+		team := NewTeamFromEvents([]event.Event{
+			&event.TeamRegistered{ID: exampleTeamUUID, Name: exampleTeamName},
+			&event.TeamDeactivated{ID: exampleTeamUUID},
+			&event.TeamActivated{ID: exampleTeamUUID},
 		})
 
 		want := 3

@@ -1,4 +1,4 @@
-package registration
+package services
 
 import (
 	"errors"
@@ -8,8 +8,6 @@ import (
 const exampleName = "Matt"
 
 func TestNewRegistrationService(t *testing.T) {
-	ErrInvalidConfig := errors.New("Invalid configuration")
-
 	type testCase struct {
 		test        string
 		testConfig  func() RegistrationConfiguration
@@ -31,10 +29,10 @@ func TestNewRegistrationService(t *testing.T) {
 			test: "With bad config",
 			testConfig: func() RegistrationConfiguration {
 				return func(s *RegistrationService) error {
-					return ErrInvalidConfig
+					return ErrInvalidRegistrationConfig
 				}
 			},
-			expectedErr: ErrInvalidConfig,
+			expectedErr: ErrInvalidRegistrationConfig,
 		},
 	}
 

@@ -5,15 +5,17 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/logan-connolly/teammate/internal/domain/team"
 	"github.com/logan-connolly/teammate/internal/entity"
+	"github.com/logan-connolly/teammate/internal/team/domain/event"
+	"github.com/logan-connolly/teammate/internal/team/domain/model"
+	"github.com/logan-connolly/teammate/internal/team/domain/repository"
 )
 
 var (
-	exampleUUID = uuid.MustParse("f55e93f8-c952-11ed-afa1-0242ac120002")
-	anotherUUID = uuid.MustParse("f47ac10b-58cc-0372-8567-0e02b2c3d479")
-	exampleName = "Syracuse"
-	anotherName = "Notre Dame"
+	exampleTeamUUID = uuid.MustParse("f55e93f8-c952-11ed-afa1-0242ac120002")
+	anotherTeamUUID = uuid.MustParse("f47ac10b-58cc-0372-8567-0e02b2c3d479")
+	exampleTeamName = "Syracuse"
+	anotherTeamName = "Notre Dame"
 )
 
 func TestMemoryTeamRepository_Get(t *testing.T) {
@@ -26,11 +28,11 @@ func TestMemoryTeamRepository_Get(t *testing.T) {
 	testCases := []testCase{
 		{
 			test:        "No team found with this group",
-			group:       &entity.Group{ID: anotherUUID, Name: anotherName},
-			expectedErr: team.ErrTeamNotFound,
+			group:       &entity.Group{ID: anotherTeamUUID, Name: anotherTeamName},
+			expectedErr: repository.ErrTeamNotFound,
 		}, {
 			test:        "Team found",
-			group:       &entity.Group{ID: exampleUUID, Name: exampleName},
+			group:       &entity.Group{ID: exampleTeamUUID, Name: exampleTeamName},
 			expectedErr: nil,
 		},
 	}
@@ -38,8 +40,8 @@ func TestMemoryTeamRepository_Get(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
 			repo := NewMemoryTeamRepository()
-			repo.teams[exampleUUID] = []team.Event{
-				&team.TeamRegistered{ID: exampleUUID, Name: exampleName},
+			repo.teams[exampleTeamUUID] = []event.Event{
+				&event.TeamRegistered{ID: exampleTeamUUID, Name: exampleTeamName},
 			}
 
 			_, err := repo.Get(tc.group)
@@ -62,25 +64,25 @@ func TestMemoryTeamRepository_Add(t *testing.T) {
 	testCases := []testCase{
 		{
 			test:        "Successfully add a team",
-			id:          anotherUUID,
-			name:        anotherName,
+			id:          anotherTeamUUID,
+			name:        anotherTeamName,
 			expectedErr: nil,
 		},
 		{
 			test:        "Team already exists error",
-			id:          exampleUUID,
-			name:        exampleName,
-			expectedErr: team.ErrTeamAlreadyExists,
+			id:          exampleTeamUUID,
+			name:        exampleTeamName,
+			expectedErr: repository.ErrTeamAlreadyExists,
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
 			r := NewMemoryTeamRepository()
-			team := team.NewTeamFromEvents([]team.Event{
-				&team.TeamRegistered{ID: tc.id, Name: tc.name},
+			team := model.NewTeamFromEvents([]event.Event{
+				&event.TeamRegistered{ID: tc.id, Name: tc.name},
 			})
-			r.teams[exampleUUID] = team.Events()
+			r.teams[exampleTeamUUID] = team.Events()
 
 			err := r.Add(team)
 
@@ -110,24 +112,24 @@ func TestMemoryTeamRepository_Update(t *testing.T) {
 			test:        "Team has no changes",
 			register:    true,
 			deactivate:  false,
-			expectedErr: team.ErrTeamHasNoUpdates,
+			expectedErr: repository.ErrTeamHasNoUpdates,
 		},
 		{
 			test:        "Team not found",
 			register:    false,
 			deactivate:  true,
-			expectedErr: team.ErrTeamNotFound,
+			expectedErr: repository.ErrTeamNotFound,
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
 			r := NewMemoryTeamRepository()
-			team := team.NewTeamFromEvents([]team.Event{
-				&team.TeamRegistered{ID: exampleUUID, Name: exampleName},
+			team := model.NewTeamFromEvents([]event.Event{
+				&event.TeamRegistered{ID: exampleTeamUUID, Name: exampleTeamName},
 			})
 			if tc.register {
-				r.teams[exampleUUID] = team.Events()
+				r.teams[exampleTeamUUID] = team.Events()
 			}
 			if tc.deactivate {
 				team.Deactivate()

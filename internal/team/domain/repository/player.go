@@ -1,9 +1,10 @@
-package player
+package repository
 
 import (
 	"errors"
 
 	"github.com/logan-connolly/teammate/internal/entity"
+	"github.com/logan-connolly/teammate/internal/team/domain/model"
 )
 
 var (
@@ -14,7 +15,7 @@ var (
 
 // PlayerRepository defines the interface for the player repository.
 type PlayerRepository interface {
-	Get(*entity.Person) (*Player, error)
-	Add(*Player) error
-	Update(*Player) error
+	Get(*entity.Person) (*model.Player, error)
+	Add(*model.Player) error
+	Update(*model.Player) error
 }
