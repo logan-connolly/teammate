@@ -7,10 +7,10 @@ import (
 
 const exampleName = "Matt"
 
-func TestNewRegistrationService(t *testing.T) {
+func TestNewRosterService(t *testing.T) {
 	type testCase struct {
 		test        string
-		testConfig  func() RegistrationConfiguration
+		testConfig  func() RosterConfiguration
 		expectedErr error
 	}
 
@@ -27,17 +27,17 @@ func TestNewRegistrationService(t *testing.T) {
 		},
 		{
 			test: "With bad config",
-			testConfig: func() RegistrationConfiguration {
-				return func(s *RegistrationService) error {
-					return ErrInvalidRegistrationConfig
+			testConfig: func() RosterConfiguration {
+				return func(s *RosterService) error {
+					return ErrInvalidRosterConfig
 				}
 			},
-			expectedErr: ErrInvalidRegistrationConfig,
+			expectedErr: ErrInvalidRosterConfig,
 		},
 	}
 
 	for _, tc := range testCases {
-		_, err := NewRegistrationService(tc.testConfig())
+		_, err := NewRosterService(tc.testConfig())
 		if !errors.Is(err, tc.expectedErr) {
 			t.Errorf("Expected %v, but got %v.", tc.expectedErr, err)
 		}

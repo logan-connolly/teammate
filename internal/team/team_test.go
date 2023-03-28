@@ -17,18 +17,18 @@ func TestMemoryApplication(t *testing.T) {
 	})
 
 	t.Run("Init failure due to bad registration service config", func(t *testing.T) {
-		WithInvalidMemoryConfig := func() services.RegistrationConfiguration {
-			return func(s *services.RegistrationService) error {
-				return services.ErrInvalidRegistrationConfig
+		WithInvalidMemoryConfig := func() services.RosterConfiguration {
+			return func(s *services.RosterService) error {
+				return services.ErrInvalidRosterConfig
 			}
 		}
 		originalMemoryConfigs := memoryConfigs
-		memoryConfigs = []services.RegistrationConfiguration{WithInvalidMemoryConfig()}
+		memoryConfigs = []services.RosterConfiguration{WithInvalidMemoryConfig()}
 
 		_, err := NewMemoryApplication()
 
-		if !errors.Is(err, services.ErrInvalidRegistrationConfig) {
-			t.Errorf("Wanted %v, but got %v", services.ErrInvalidRegistrationConfig, err)
+		if !errors.Is(err, services.ErrInvalidRosterConfig) {
+			t.Errorf("Wanted %v, but got %v", services.ErrInvalidRosterConfig, err)
 		}
 
 		// clean up memoryConfigs
