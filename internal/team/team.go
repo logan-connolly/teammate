@@ -4,19 +4,17 @@ import (
 	"github.com/logan-connolly/teammate/internal/team/services"
 )
 
+var memoryConfigs = []services.RegistrationConfiguration{
+	services.WithMemoryPlayerRepository(),
+	services.WithMemoryTeamRepository(),
+}
+
 type Application struct {
 	registrationService services.RegistrationService
 }
 
-func (a *Application) GetRegistrationService() services.RegistrationService {
-	return a.registrationService
-}
-
 func NewMemoryApplication() (*Application, error) {
-	rs, err := services.NewRegistrationService(
-		services.WithMemoryPlayerRepository(),
-		services.WithMemoryTeamRepository(),
-	)
+	rs, err := services.NewRegistrationService(memoryConfigs...)
 	if err != nil {
 		return &Application{}, services.ErrInvalidRegistrationConfig
 	}
