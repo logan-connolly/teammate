@@ -42,7 +42,7 @@ func TestMemoryPlayerRepository_Get(t *testing.T) {
 		t.Run(tc.test, func(t *testing.T) {
 			repo := NewMemoryPlayerRepository()
 			repo.players[examplePlayerUUID] = []event.Event{
-				&event.PlayerRegistered{ID: examplePlayerUUID, Name: exampleTeamName},
+				&event.PlayerCreated{ID: examplePlayerUUID, Name: exampleTeamName},
 			}
 
 			_, err := repo.Get(tc.person)
@@ -81,7 +81,7 @@ func TestMemoryPlayerRepository_Add(t *testing.T) {
 		t.Run(tc.test, func(t *testing.T) {
 			r := NewMemoryPlayerRepository()
 			p := model.NewPlayerFromEvents([]event.Event{
-				&event.PlayerRegistered{ID: tc.id, Name: tc.name},
+				&event.PlayerCreated{ID: tc.id, Name: tc.name},
 			})
 			r.players[examplePlayerUUID] = p.Events()
 
@@ -127,7 +127,7 @@ func TestMemoryPlayerRepository_Update(t *testing.T) {
 		t.Run(tc.test, func(t *testing.T) {
 			r := NewMemoryPlayerRepository()
 			p := model.NewPlayerFromEvents([]event.Event{
-				&event.PlayerRegistered{ID: examplePlayerUUID, Name: exampleTeamName},
+				&event.PlayerCreated{ID: examplePlayerUUID, Name: exampleTeamName},
 			})
 			if tc.register {
 				r.players[examplePlayerUUID] = p.Events()

@@ -31,7 +31,7 @@ func NewPlayer(p *entity.Person) (*Player, error) {
 		return player, ErrInvalidPerson
 	}
 
-	player.register(&event.PlayerRegistered{
+	player.register(&event.PlayerCreated{
 		ID:   p.ID,
 		Name: p.Name,
 	})
@@ -95,7 +95,7 @@ func (p *Player) Deactivate() error {
 // Apply applies player events to the player aggregate.
 func (p *Player) Apply(e event.Event, new bool) {
 	switch pe := e.(type) {
-	case *event.PlayerRegistered:
+	case *event.PlayerCreated:
 		p.person = &entity.Person{
 			ID:   pe.ID,
 			Name: pe.Name,

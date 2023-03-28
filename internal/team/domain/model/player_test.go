@@ -52,14 +52,14 @@ func TestPlayer_NewEvents(t *testing.T) {
 		{
 			test: "Player registered",
 			events: []event.Event{
-				&event.PlayerRegistered{ID: examplePlayerUUID, Name: examplePlayerName},
+				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
 			},
 			expectedIsActivated: true,
 		},
 		{
 			test: "Player registered and deactivated",
 			events: []event.Event{
-				&event.PlayerRegistered{ID: examplePlayerUUID, Name: examplePlayerName},
+				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
 				&event.PlayerDeactivated{ID: examplePlayerUUID},
 			},
 			expectedIsActivated: false,
@@ -92,14 +92,14 @@ func TestPlayer_Activate(t *testing.T) {
 		{
 			test: "Activate active player",
 			player: NewPlayerFromEvents([]event.Event{
-				&event.PlayerRegistered{ID: examplePlayerUUID, Name: examplePlayerName},
+				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
 			}),
 			expectedErr: ErrPlayerAlreadyActivated,
 		},
 		{
 			test: "Activate deactivated player",
 			player: NewPlayerFromEvents([]event.Event{
-				&event.PlayerRegistered{ID: examplePlayerUUID, Name: examplePlayerName},
+				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
 				&event.PlayerDeactivated{ID: examplePlayerUUID},
 			}),
 			expectedErr: nil,
@@ -129,14 +129,14 @@ func TestPlayer_Deactivate(t *testing.T) {
 		{
 			test: "Deactivate active player",
 			player: NewPlayerFromEvents([]event.Event{
-				&event.PlayerRegistered{ID: examplePlayerUUID, Name: examplePlayerName},
+				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
 			}),
 			expectedErr: nil,
 		},
 		{
 			test: "Deactivate deactivated player",
 			player: NewPlayerFromEvents([]event.Event{
-				&event.PlayerRegistered{ID: examplePlayerUUID, Name: examplePlayerName},
+				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
 				&event.PlayerDeactivated{ID: examplePlayerUUID},
 			}),
 			expectedErr: ErrPlayerAlreadyDeactivated,
@@ -177,7 +177,7 @@ func TestPlayer_Events(t *testing.T) {
 func TestPlayer_Version(t *testing.T) {
 	t.Run("Version is properly updated", func(t *testing.T) {
 		p := NewPlayerFromEvents([]event.Event{
-			&event.PlayerRegistered{ID: examplePlayerUUID, Name: examplePlayerName},
+			&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
 			&event.PlayerDeactivated{ID: examplePlayerUUID},
 			&event.PlayerActivated{ID: examplePlayerUUID},
 		})

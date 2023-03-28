@@ -52,14 +52,14 @@ func TestTeam_NewEvents(t *testing.T) {
 		{
 			test: "Team registered",
 			events: []event.Event{
-				&event.TeamRegistered{ID: exampleTeamUUID, Name: exampleTeamName},
+				&event.TeamCreated{ID: exampleTeamUUID, Name: exampleTeamName},
 			},
 			expectedIsActivated: true,
 		},
 		{
 			test: "Team registered and deactivated",
 			events: []event.Event{
-				&event.TeamRegistered{ID: exampleTeamUUID, Name: exampleTeamName},
+				&event.TeamCreated{ID: exampleTeamUUID, Name: exampleTeamName},
 				&event.TeamDeactivated{ID: exampleTeamUUID},
 			},
 			expectedIsActivated: false,
@@ -92,14 +92,14 @@ func TestTeam_Activate(t *testing.T) {
 		{
 			test: "Activate active team",
 			team: NewTeamFromEvents([]event.Event{
-				&event.TeamRegistered{ID: exampleTeamUUID, Name: exampleTeamName},
+				&event.TeamCreated{ID: exampleTeamUUID, Name: exampleTeamName},
 			}),
 			expectedErr: ErrTeamAlreadyActivated,
 		},
 		{
 			test: "Activate deactivated team",
 			team: NewTeamFromEvents([]event.Event{
-				&event.TeamRegistered{ID: exampleTeamUUID, Name: exampleTeamName},
+				&event.TeamCreated{ID: exampleTeamUUID, Name: exampleTeamName},
 				&event.TeamDeactivated{ID: exampleTeamUUID},
 			}),
 			expectedErr: nil,
@@ -129,14 +129,14 @@ func TestTeam_Deactivate(t *testing.T) {
 		{
 			test: "Deactivate active team",
 			team: NewTeamFromEvents([]event.Event{
-				&event.TeamRegistered{ID: exampleTeamUUID, Name: exampleTeamName},
+				&event.TeamCreated{ID: exampleTeamUUID, Name: exampleTeamName},
 			}),
 			expectedErr: nil,
 		},
 		{
 			test: "Deactivate deactivated team",
 			team: NewTeamFromEvents([]event.Event{
-				&event.TeamRegistered{ID: exampleTeamUUID, Name: exampleTeamName},
+				&event.TeamCreated{ID: exampleTeamUUID, Name: exampleTeamName},
 				&event.TeamDeactivated{ID: exampleTeamUUID},
 			}),
 			expectedErr: ErrTeamAlreadyDeactivated,
@@ -177,7 +177,7 @@ func TestTeam_Events(t *testing.T) {
 func TestTeam_Version(t *testing.T) {
 	t.Run("Version is properly updated", func(t *testing.T) {
 		team := NewTeamFromEvents([]event.Event{
-			&event.TeamRegistered{ID: exampleTeamUUID, Name: exampleTeamName},
+			&event.TeamCreated{ID: exampleTeamUUID, Name: exampleTeamName},
 			&event.TeamDeactivated{ID: exampleTeamUUID},
 			&event.TeamActivated{ID: exampleTeamUUID},
 		})

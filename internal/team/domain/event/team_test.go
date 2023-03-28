@@ -11,9 +11,9 @@ func TestTeamEvent(t *testing.T) {
 
 	testCases := []testCase{
 		{
-			test:     "TeamRegistered event name",
-			event:    &TeamRegistered{},
-			expected: "TeamRegistered",
+			test:     "TeamCreated event name",
+			event:    &TeamCreated{},
+			expected: "TeamCreated",
 		},
 		{
 			test:     "TeamActivated event name",

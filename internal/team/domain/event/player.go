@@ -6,13 +6,13 @@ import (
 	"github.com/google/uuid"
 )
 
-// PlayerRegistered event.
-type PlayerRegistered struct {
+// PlayerCreated event.
+type PlayerCreated struct {
 	ID   uuid.UUID `json:"id"`
 	Name string    `json:"name"`
 }
 
-func (e PlayerRegistered) eventName() string {
+func (e PlayerCreated) eventName() string {
 	return reflect.TypeOf(e).Name()
 }
 

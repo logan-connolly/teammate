@@ -31,7 +31,7 @@ func NewTeam(g *entity.Group) (*Team, error) {
 		return t, ErrInvalidGroup
 	}
 
-	t.register(&event.TeamRegistered{
+	t.register(&event.TeamCreated{
 		ID:   g.ID,
 		Name: g.Name,
 	})
@@ -95,7 +95,7 @@ func (t *Team) Deactivate() error {
 // Apply applies team events to the team aggregate.
 func (t *Team) Apply(e event.Event, new bool) {
 	switch te := e.(type) {
-	case *event.TeamRegistered:
+	case *event.TeamCreated:
 		t.group = &entity.Group{
 			ID:   te.ID,
 			Name: te.Name,

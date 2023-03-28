@@ -41,7 +41,7 @@ func TestMemoryTeamRepository_Get(t *testing.T) {
 		t.Run(tc.test, func(t *testing.T) {
 			repo := NewMemoryTeamRepository()
 			repo.teams[exampleTeamUUID] = []event.Event{
-				&event.TeamRegistered{ID: exampleTeamUUID, Name: exampleTeamName},
+				&event.TeamCreated{ID: exampleTeamUUID, Name: exampleTeamName},
 			}
 
 			_, err := repo.Get(tc.group)
@@ -80,7 +80,7 @@ func TestMemoryTeamRepository_Add(t *testing.T) {
 		t.Run(tc.test, func(t *testing.T) {
 			r := NewMemoryTeamRepository()
 			team := model.NewTeamFromEvents([]event.Event{
-				&event.TeamRegistered{ID: tc.id, Name: tc.name},
+				&event.TeamCreated{ID: tc.id, Name: tc.name},
 			})
 			r.teams[exampleTeamUUID] = team.Events()
 
@@ -126,7 +126,7 @@ func TestMemoryTeamRepository_Update(t *testing.T) {
 		t.Run(tc.test, func(t *testing.T) {
 			r := NewMemoryTeamRepository()
 			team := model.NewTeamFromEvents([]event.Event{
-				&event.TeamRegistered{ID: exampleTeamUUID, Name: exampleTeamName},
+				&event.TeamCreated{ID: exampleTeamUUID, Name: exampleTeamName},
 			})
 			if tc.register {
 				r.teams[exampleTeamUUID] = team.Events()
