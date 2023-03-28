@@ -7,7 +7,7 @@ import (
 	"github.com/logan-connolly/teammate/internal/team/domain/storage/memory"
 )
 
-var ErrInvalidRegistrationConfig = errors.New("Invalid registration configuration")
+var ErrInvalidRegistrationConfig = errors.New("services: invalid registration configuration")
 
 // RegistrationConfiguration is a function that modifies the service.
 type RegistrationConfiguration func(s *RegistrationService) error

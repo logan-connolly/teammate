@@ -8,9 +8,9 @@ import (
 )
 
 var (
-	ErrPlayerNotFound      = errors.New("the player was not found in the repository")
-	ErrPlayerAlreadyExists = errors.New("player already exists in repository")
-	ErrPlayerHasNoUpdates  = errors.New("failed to update player in the repository")
+	ErrPlayerNotFound      = errors.New("repository: the player was not found")
+	ErrPlayerAlreadyExists = errors.New("repository: player already exists")
+	ErrPlayerHasNoUpdates  = errors.New("repository: failed to update player")
 )
 
 // PlayerRepository defines the interface for the player repository.

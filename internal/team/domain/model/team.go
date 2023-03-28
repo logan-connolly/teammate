@@ -9,9 +9,9 @@ import (
 )
 
 var (
-	ErrInvalidGroup           = errors.New("team has to be a valid group")
-	ErrTeamAlreadyActivated   = errors.New("team is already activated")
-	ErrTeamAlreadyDeactivated = errors.New("team is already inactive")
+	ErrInvalidGroup           = errors.New("model: team has to be a valid group")
+	ErrTeamAlreadyActivated   = errors.New("model: team is already activated")
+	ErrTeamAlreadyDeactivated = errors.New("model: team is already inactive")
 )
 
 // Team is a aggregate that combines all entities needed to represent a team.
