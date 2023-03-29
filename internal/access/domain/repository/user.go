@@ -8,9 +8,9 @@ import (
 )
 
 var (
-	ErrUserNotFound      = errors.New("the user was not found in the repository")
-	ErrUserAlreadyExists = errors.New("user already exists in repository")
-	ErrUserHasNoUpdates  = errors.New("failed to update user in the repository")
+	ErrUserNotFound      = errors.New("repository: the user was not found")
+	ErrUserAlreadyExists = errors.New("repository: user already exists")
+	ErrUserHasNoUpdates  = errors.New("repository: failed to update user")
 )
 
 // UserRepository defines the interface for the user repository.
