@@ -16,7 +16,7 @@ func TestMemoryApplication(t *testing.T) {
 		}
 	})
 
-	t.Run("Init failure due to bad registration service config", func(t *testing.T) {
+	t.Run("Init failure due to bad roster service config", func(t *testing.T) {
 		WithInvalidMemoryConfig := func() services.RosterConfiguration {
 			return func(s *services.RosterService) error {
 				return services.ErrInvalidRosterConfig
