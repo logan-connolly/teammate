@@ -30,9 +30,11 @@ func TestNewRegistrationService(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		_, err := NewRegistrationService(tc.testConfig())
-		if !errors.Is(err, tc.expectedErr) {
-			t.Errorf("Expected %v, but got %v.", tc.expectedErr, err)
-		}
+		t.Run(tc.test, func(t *testing.T) {
+			_, err := NewRegistrationService(tc.testConfig())
+			if !errors.Is(err, tc.expectedErr) {
+				t.Errorf("Expected %v, but got %v.", tc.expectedErr, err)
+			}
+		})
 	}
 }
