@@ -42,13 +42,70 @@ func TestMemoryPlayerRepository_Get(t *testing.T) {
 		t.Run(tc.test, func(t *testing.T) {
 			repo := NewMemoryPlayerRepository()
 			repo.players[examplePlayerUUID] = []event.Event{
-				&event.PlayerCreated{ID: examplePlayerUUID, Name: exampleTeamName},
+				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
 			}
 
 			_, err := repo.Get(tc.person)
 
 			if !errors.Is(err, tc.expectedErr) {
 				t.Errorf("Expected error %v, got %v", tc.expectedErr, err)
+			}
+		})
+	}
+}
+
+func TestMemoryPlayerRepository_GetTeams(t *testing.T) {
+	type testCase struct {
+		test        string
+		playerId    uuid.UUID
+		teamCount   int
+		events      []event.Event
+		expectedErr error
+	}
+
+	testCases := []testCase{
+		{
+			test:      "Player not found",
+			playerId:  anotherPlayerUUID,
+			teamCount: 0,
+			events: []event.Event{
+				&event.PlayerCreated{ID: anotherPlayerUUID, Name: anotherPlayerName},
+			},
+			expectedErr: repository.ErrPlayerNotFound,
+		},
+		{
+			test:      "No team is assigned",
+			playerId:  examplePlayerUUID,
+			teamCount: 0,
+			events: []event.Event{
+				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
+			},
+			expectedErr: nil,
+		},
+		{
+			test:      "One team is assigned",
+			playerId:  examplePlayerUUID,
+			teamCount: 1,
+			events: []event.Event{
+				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
+				&event.TeamAssignedToPlayer{ID: examplePlayerUUID, TeamId: exampleTeamUUID, TeamName: exampleTeamName},
+			},
+			expectedErr: nil,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.test, func(t *testing.T) {
+			repo := NewMemoryPlayerRepository()
+			repo.players[tc.playerId] = tc.events
+
+			teams, err := repo.GetTeams(&entity.Person{ID: examplePlayerUUID, Name: examplePlayerName})
+
+			if !errors.Is(err, tc.expectedErr) {
+				t.Errorf("Expected error %v, got %v", tc.expectedErr, err)
+			}
+			if len(teams) != tc.teamCount {
+				t.Errorf("Expected %v, got %d", tc.teamCount, len(teams))
 			}
 		})
 	}

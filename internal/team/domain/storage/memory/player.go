@@ -32,6 +32,15 @@ func (r *MemoryPlayerRepository) Get(p *entity.Person) (*model.Player, error) {
 	return &model.Player{}, repository.ErrPlayerNotFound
 }
 
+// GetTeams retrieves teams assigned to players.
+func (r *MemoryPlayerRepository) GetTeams(p *entity.Person) ([]*entity.Group, error) {
+	events, ok := r.players[p.ID]
+	if !ok {
+		return []*entity.Group{}, repository.ErrPlayerNotFound
+	}
+	return model.NewPlayerFromEvents(events).GetTeams(), nil
+}
+
 // Add stores a new player in the repository.
 func (r *MemoryPlayerRepository) Add(p *model.Player) error {
 	if _, ok := r.players[p.GetID()]; ok {
