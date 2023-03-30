@@ -25,6 +25,11 @@ func TestTeamEvent(t *testing.T) {
 			event:    &TeamDeactivated{},
 			expected: "TeamDeactivated",
 		},
+		{
+			test:     "PlayerAssignedToTeam event name",
+			event:    &PlayerAssignedToTeam{},
+			expected: "PlayerAssignedToTeam",
+		},
 	}
 
 	for _, tc := range testCases {
