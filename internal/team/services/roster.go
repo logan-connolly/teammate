@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 
+	"github.com/logan-connolly/teammate/internal/entity"
 	"github.com/logan-connolly/teammate/internal/team/domain/repository"
 	"github.com/logan-connolly/teammate/internal/team/domain/storage/memory"
 )
@@ -29,6 +30,31 @@ func NewRosterService(cfgs ...RosterConfiguration) (*RosterService, error) {
 		}
 	}
 	return s, nil
+}
+
+// AssignPlayerToTeam assigns player to team's roster.
+func (s *RosterService) AssignPlayerToTeam(team *entity.Group, player *entity.Person) error {
+	t, err := s.teams.Get(team)
+	if err != nil {
+		return err
+	}
+	p, err := s.players.Get(player)
+	if err != nil {
+		return err
+	}
+	err = t.AssignPlayer(p)
+	if err != nil {
+		return err
+	}
+	err = p.AssignTeam(t)
+	if err != nil {
+		return err
+	}
+
+	s.teams.Update(t)
+	s.players.Update(p)
+
+	return nil
 }
 
 // WithPlayerRepository applies a given player repository to the service.
