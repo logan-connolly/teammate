@@ -12,12 +12,17 @@ var (
 	ErrInvalidPerson            = errors.New("model: player has to be a valid person")
 	ErrPlayerAlreadyActivated   = errors.New("model: player is already activated")
 	ErrPlayerAlreadyDeactivated = errors.New("model: player is already inactive")
+	ErrTeamAlreadyAssigned      = errors.New("model: team already assigned to player")
 )
+
+// TeamMapping stores the mapping of registered team ids to group entities.
+type TeamMapping map[uuid.UUID]*entity.Group
 
 // Player is a aggregate that combines all entities needed to represent a player.
 type Player struct {
 	person    *entity.Person
 	activated bool
+	teams     TeamMapping
 
 	changes []event.Event
 	version int
@@ -61,6 +66,13 @@ func (p *Player) GetName() string {
 	return p.person.Name
 }
 
+func (p *Player) GetTeams() (teams []*entity.Group) {
+	for _, team := range p.teams {
+		teams = append(teams, team)
+	}
+	return teams
+}
+
 // IsActivated returns whether the player is activated.
 func (p *Player) IsActivated() bool {
 	return p.activated
@@ -92,6 +104,21 @@ func (p *Player) Deactivate() error {
 	return nil
 }
 
+// AssignTeam assigns team to player.
+func (p *Player) AssignTeam(t *Team) error {
+	if _, ok := p.teams[t.group.ID]; ok {
+		return ErrTeamAlreadyAssigned
+	}
+
+	p.register(&event.TeamAssignedToPlayer{
+		ID:       p.person.ID,
+		TeamId:   t.group.ID,
+		TeamName: t.group.Name,
+	})
+
+	return nil
+}
+
 // Apply applies player events to the player aggregate.
 func (p *Player) Apply(e event.Event, new bool) {
 	switch pe := e.(type) {
@@ -101,12 +128,16 @@ func (p *Player) Apply(e event.Event, new bool) {
 			Name: pe.Name,
 		}
 		p.activated = true
+		p.teams = make(map[uuid.UUID]*entity.Group)
 
 	case *event.PlayerDeactivated:
 		p.activated = false
 
 	case *event.PlayerActivated:
 		p.activated = true
+
+	case *event.TeamAssignedToPlayer:
+		p.teams[pe.TeamId] = &entity.Group{ID: pe.TeamId, Name: pe.TeamName}
 	}
 
 	if !new {

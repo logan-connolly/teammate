@@ -156,6 +156,88 @@ func TestPlayer_Deactivate(t *testing.T) {
 	}
 }
 
+func TestPlayer_AssignTeam(t *testing.T) {
+	type testCase struct {
+		test        string
+		player      *Player
+		team        *Team
+		expectedErr error
+	}
+	testCases := []testCase{
+		{
+			test: "Add team to player",
+			player: NewPlayerFromEvents([]event.Event{
+				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
+			}),
+			team: NewTeamFromEvents([]event.Event{
+				&event.TeamCreated{ID: exampleTeamUUID, Name: exampleTeamName},
+			}),
+			expectedErr: nil,
+		},
+		{
+			test: "Add team that is already assigned to player",
+			player: NewPlayerFromEvents([]event.Event{
+				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
+				&event.TeamAssignedToPlayer{ID: examplePlayerUUID, TeamId: exampleTeamUUID, TeamName: exampleTeamName},
+			}),
+			team: NewTeamFromEvents([]event.Event{
+				&event.TeamCreated{ID: exampleTeamUUID, Name: exampleTeamName},
+			}),
+			expectedErr: ErrTeamAlreadyAssigned,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.test, func(t *testing.T) {
+			err := tc.player.AssignTeam(tc.team)
+			if err != tc.expectedErr {
+				t.Errorf("Expected error %v, got %v", tc.expectedErr, err)
+			}
+		})
+	}
+}
+
+func TestPlayer_GetTeams(t *testing.T) {
+	type testCase struct {
+		test      string
+		player    *Player
+		team      *Team
+		teamCount int
+	}
+	testCases := []testCase{
+		{
+			test: "No teams assigned",
+			player: NewPlayerFromEvents([]event.Event{
+				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
+			}),
+			team: NewTeamFromEvents([]event.Event{
+				&event.TeamCreated{ID: exampleTeamUUID, Name: exampleTeamName},
+			}),
+			teamCount: 0,
+		},
+		{
+			test: "Add player that is already assigned to team",
+			player: NewPlayerFromEvents([]event.Event{
+				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
+				&event.TeamAssignedToPlayer{ID: examplePlayerUUID, TeamId: exampleTeamUUID, TeamName: exampleTeamName},
+			}),
+			team: NewTeamFromEvents([]event.Event{
+				&event.TeamCreated{ID: exampleTeamUUID, Name: exampleTeamName},
+			}),
+			teamCount: 1,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.test, func(t *testing.T) {
+			team := tc.player.GetTeams()
+			if len(team) != tc.teamCount {
+				t.Errorf("Expected %d, got %d", tc.teamCount, len(team))
+			}
+		})
+	}
+}
+
 func TestPlayer_Events(t *testing.T) {
 	t.Run("Event log is populated", func(t *testing.T) {
 		player, err := NewPlayer(&entity.Person{ID: examplePlayerUUID, Name: examplePlayerName})
