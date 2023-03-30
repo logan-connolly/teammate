@@ -33,3 +33,14 @@ type PlayerDeactivated struct {
 func (e PlayerDeactivated) eventName() string {
 	return reflect.TypeOf(e).Name()
 }
+
+// TeamAssignedToPlayer event.
+type TeamAssignedToPlayer struct {
+	ID       uuid.UUID `json:"id"`
+	TeamId   uuid.UUID `json:"team_id"`
+	TeamName string    `json:"team_name"`
+}
+
+func (e TeamAssignedToPlayer) eventName() string {
+	return reflect.TypeOf(e).Name()
+}
