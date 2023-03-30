@@ -53,6 +53,63 @@ func TestMemoryTeamRepository_Get(t *testing.T) {
 	}
 }
 
+func TestMemoryTeamRepository_GetPlayers(t *testing.T) {
+	type testCase struct {
+		test        string
+		teamId      uuid.UUID
+		playerCount int
+		events      []event.Event
+		expectedErr error
+	}
+
+	testCases := []testCase{
+		{
+			test:        "Team not found",
+			teamId:      anotherTeamUUID,
+			playerCount: 0,
+			events: []event.Event{
+				&event.TeamCreated{ID: anotherTeamUUID, Name: anotherTeamName},
+			},
+			expectedErr: repository.ErrTeamNotFound,
+		},
+		{
+			test:        "No player is assigned",
+			teamId:      exampleTeamUUID,
+			playerCount: 0,
+			events: []event.Event{
+				&event.TeamCreated{ID: exampleTeamUUID, Name: exampleTeamName},
+			},
+			expectedErr: nil,
+		},
+		{
+			test:        "One player is assigned",
+			teamId:      exampleTeamUUID,
+			playerCount: 1,
+			events: []event.Event{
+				&event.TeamCreated{ID: exampleTeamUUID, Name: exampleTeamName},
+				&event.PlayerAssignedToTeam{ID: exampleTeamUUID, PlayerId: examplePlayerUUID, PlayerName: examplePlayerName},
+			},
+			expectedErr: nil,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.test, func(t *testing.T) {
+			repo := NewMemoryTeamRepository()
+			repo.teams[tc.teamId] = tc.events
+
+			players, err := repo.GetPlayers(&entity.Group{ID: exampleTeamUUID, Name: exampleTeamName})
+
+			if !errors.Is(err, tc.expectedErr) {
+				t.Errorf("Expected error %v, got %v", tc.expectedErr, err)
+			}
+			if len(players) != tc.playerCount {
+				t.Errorf("Expected %v, got %d", tc.playerCount, len(players))
+			}
+		})
+	}
+}
+
 func TestMemoryTeamRepository_Add(t *testing.T) {
 	type testCase struct {
 		test        string
