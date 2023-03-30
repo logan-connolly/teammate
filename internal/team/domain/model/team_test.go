@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	exampleTeamUUID = uuid.MustParse("f55e93f8-c952-11ed-afa1-0242ac120002")
+	exampleTeamUUID = uuid.MustParse("d35e93f8-c952-11ed-afa1-0242ac120002")
 	exampleTeamName = "Virginia"
 )
 
@@ -151,6 +151,88 @@ func TestTeam_Deactivate(t *testing.T) {
 			}
 			if tc.team.IsActivated() {
 				t.Fatal("team should always be deactivated in these cases.")
+			}
+		})
+	}
+}
+
+func TestTeam_AssignPlayer(t *testing.T) {
+	type testCase struct {
+		test        string
+		player      *Player
+		team        *Team
+		expectedErr error
+	}
+	testCases := []testCase{
+		{
+			test: "Add player to team",
+			player: NewPlayerFromEvents([]event.Event{
+				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
+			}),
+			team: NewTeamFromEvents([]event.Event{
+				&event.TeamCreated{ID: exampleTeamUUID, Name: exampleTeamName},
+			}),
+			expectedErr: nil,
+		},
+		{
+			test: "Add player that is already assigned to team",
+			player: NewPlayerFromEvents([]event.Event{
+				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
+			}),
+			team: NewTeamFromEvents([]event.Event{
+				&event.TeamCreated{ID: exampleTeamUUID, Name: exampleTeamName},
+				&event.PlayerAssignedToTeam{ID: exampleTeamUUID, PlayerId: examplePlayerUUID, PlayerName: examplePlayerName},
+			}),
+			expectedErr: ErrPlayerAlreadyAssigned,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.test, func(t *testing.T) {
+			err := tc.team.AssignPlayer(tc.player)
+			if err != tc.expectedErr {
+				t.Errorf("Expected error %v, got %v", tc.expectedErr, err)
+			}
+		})
+	}
+}
+
+func TestTeam_GetPlayers(t *testing.T) {
+	type testCase struct {
+		test        string
+		player      *Player
+		team        *Team
+		playerCount int
+	}
+	testCases := []testCase{
+		{
+			test: "No players assigned",
+			player: NewPlayerFromEvents([]event.Event{
+				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
+			}),
+			team: NewTeamFromEvents([]event.Event{
+				&event.TeamCreated{ID: exampleTeamUUID, Name: exampleTeamName},
+			}),
+			playerCount: 0,
+		},
+		{
+			test: "Add player that is already assigned to team",
+			player: NewPlayerFromEvents([]event.Event{
+				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
+			}),
+			team: NewTeamFromEvents([]event.Event{
+				&event.TeamCreated{ID: exampleTeamUUID, Name: exampleTeamName},
+				&event.PlayerAssignedToTeam{ID: exampleTeamUUID, PlayerId: examplePlayerUUID, PlayerName: examplePlayerName},
+			}),
+			playerCount: 1,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.test, func(t *testing.T) {
+			players := tc.team.GetPlayers()
+			if len(players) != tc.playerCount {
+				t.Errorf("Expected %d, got %d", tc.playerCount, len(players))
 			}
 		})
 	}
