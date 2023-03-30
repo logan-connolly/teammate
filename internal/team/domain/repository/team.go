@@ -16,6 +16,7 @@ var (
 // TeamRepository defines the interface for the team repository.
 type TeamRepository interface {
 	Get(*entity.Group) (*model.Team, error)
+	GetPlayers(*entity.Group) ([]*entity.Person, error)
 	Add(*model.Team) error
 	Update(*model.Team) error
 }
