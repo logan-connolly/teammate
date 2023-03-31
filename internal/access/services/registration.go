@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/logan-connolly/teammate/internal/access/domain/repository"
-	"github.com/logan-connolly/teammate/internal/access/domain/storage/memory"
+	"github.com/logan-connolly/teammate/internal/access/infrastructure/memory"
 )
 
 var ErrInvalidRegistrationConfig = errors.New("services: invalid registration configuration")
