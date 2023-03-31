@@ -5,7 +5,7 @@ import (
 
 	"github.com/logan-connolly/teammate/internal/entity"
 	"github.com/logan-connolly/teammate/internal/team/domain/repository"
-	"github.com/logan-connolly/teammate/internal/team/domain/storage/memory"
+	"github.com/logan-connolly/teammate/internal/team/infrastructure/memory"
 )
 
 var ErrInvalidRosterConfig = errors.New("services: invalid roster configuration")
