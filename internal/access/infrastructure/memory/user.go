@@ -12,20 +12,20 @@ import (
 )
 
 // MemoryUserRepository is an in-memory user repository.
-type MemoryAccessRepository struct {
+type MemoryUserRepository struct {
 	users map[uuid.UUID][]event.Event
 	sync.Mutex
 }
 
 // NewMemoryUserRepository intializes an in-memory user repository.
-func NewMemoryAccessRepository() *MemoryAccessRepository {
-	return &MemoryAccessRepository{
+func NewMemoryUserRepository() *MemoryUserRepository {
+	return &MemoryUserRepository{
 		users: make(map[uuid.UUID][]event.Event),
 	}
 }
 
 // Get retrieves a user by ID.
-func (r *MemoryAccessRepository) Get(p *entity.Person) (*model.User, error) {
+func (r *MemoryUserRepository) Get(p *entity.Person) (*model.User, error) {
 	if events, ok := r.users[p.ID]; ok {
 		return model.NewUserFromEvents(events), nil
 	}
@@ -34,7 +34,7 @@ func (r *MemoryAccessRepository) Get(p *entity.Person) (*model.User, error) {
 }
 
 // Add stores a new user in the repository.
-func (r *MemoryAccessRepository) Add(p *model.User) error {
+func (r *MemoryUserRepository) Add(p *model.User) error {
 	if _, ok := r.users[p.GetID()]; ok {
 		return repository.ErrUserAlreadyExists
 	}
@@ -47,7 +47,7 @@ func (r *MemoryAccessRepository) Add(p *model.User) error {
 }
 
 // Update appends changes to user in the repository.
-func (r *MemoryAccessRepository) Update(p *model.User) error {
+func (r *MemoryUserRepository) Update(p *model.User) error {
 	storedEvents, ok := r.users[p.GetID()]
 	if !ok {
 		return repository.ErrUserNotFound

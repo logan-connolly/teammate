@@ -40,6 +40,6 @@ func WithUserRepository(r repository.UserRepository) RegistrationConfiguration {
 
 // WithMemoryUserRepository applies a memory user repository to the service.
 func WithMemoryUserRepository() RegistrationConfiguration {
-	r := memory.NewMemoryAccessRepository()
+	r := memory.NewMemoryUserRepository()
 	return WithUserRepository(r)
 }

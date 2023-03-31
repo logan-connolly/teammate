@@ -42,7 +42,7 @@ func TestMemoryAccessRepository_Get(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
-			repo := NewMemoryAccessRepository()
+			repo := NewMemoryUserRepository()
 			repo.users[exampleUUID] = []event.Event{
 				&event.UserRegistered{ID: exampleUUID, Name: exampleName, Email: exampleEmail},
 			}
@@ -84,7 +84,7 @@ func TestMemoryAccessRepository_Add(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
-			r := NewMemoryAccessRepository()
+			r := NewMemoryUserRepository()
 			u := model.NewUserFromEvents([]event.Event{
 				&event.UserRegistered{ID: tc.id, Name: tc.name, Email: tc.email},
 			})
@@ -130,7 +130,7 @@ func TestMemoryAccessRepository_Update(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
-			r := NewMemoryAccessRepository()
+			r := NewMemoryUserRepository()
 			u := model.NewUserFromEvents([]event.Event{
 				&event.UserRegistered{ID: exampleUUID, Name: exampleName, Email: exampleEmail},
 			})
