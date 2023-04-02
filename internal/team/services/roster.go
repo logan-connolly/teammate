@@ -57,6 +57,31 @@ func (s *RosterService) AssignPlayerToTeam(team *entity.Group, player *entity.Pe
 	return nil
 }
 
+// UnassignPlayerToTeam unassigns player from team's roster.
+func (s *RosterService) UnassignPlayerFromTeam(team *entity.Group, player *entity.Person) error {
+	t, err := s.teams.Get(team)
+	if err != nil {
+		return err
+	}
+	p, err := s.players.Get(player)
+	if err != nil {
+		return err
+	}
+	err = t.UnassignPlayer(p)
+	if err != nil {
+		return err
+	}
+	err = p.UnassignTeam(t)
+	if err != nil {
+		return err
+	}
+
+	s.teams.Update(t)
+	s.players.Update(p)
+
+	return nil
+}
+
 // WithPlayerRepository applies a given player repository to the service.
 func WithPlayerRepository(r repository.PlayerRepository) RosterConfiguration {
 	return func(s *RosterService) error {

@@ -130,3 +130,80 @@ func TestRosterService_AssignPlayerToTeam(t *testing.T) {
 		})
 	}
 }
+
+func TestRosterService_UnassignPlayerToTeam(t *testing.T) {
+	type testCase struct {
+		test         string
+		group        *entity.Group
+		person       *entity.Person
+		assignPlayer bool
+		assignTeam   bool
+		expectedErr  error
+	}
+
+	testCases := []testCase{
+		{
+			test:        "Team not found",
+			group:       anotherGroup,
+			person:      examplePerson,
+			expectedErr: repository.ErrTeamNotFound,
+		},
+		{
+			test:        "Player not found",
+			group:       exampleGroup,
+			person:      anotherPerson,
+			expectedErr: repository.ErrPlayerNotFound,
+		},
+		{
+			test:         "Team not assigned to player",
+			group:        exampleGroup,
+			person:       examplePerson,
+			assignPlayer: true,
+			expectedErr:  model.ErrTeamNotAssignedToPlayer,
+		},
+		{
+			test:        "Player not assigned to team",
+			group:       exampleGroup,
+			person:      examplePerson,
+			assignTeam:  true,
+			expectedErr: model.ErrPlayerNotAssignedToTeam,
+		},
+		{
+			test:         "Player unassigned from team",
+			group:        exampleGroup,
+			person:       examplePerson,
+			assignPlayer: true,
+			assignTeam:   true,
+			expectedErr:  nil,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.test, func(t *testing.T) {
+			// initialize roster service
+			s, err := NewRosterService(WithMemoryPlayerRepository(), WithMemoryTeamRepository())
+
+			// instantiate player and team aggregate
+			player, _ := model.NewPlayer(examplePerson)
+			team, _ := model.NewTeam(exampleGroup)
+
+			// already assign to team or player aggregate
+			if tc.assignTeam {
+				player.AssignTeam(team)
+			}
+			if tc.assignPlayer {
+				team.AssignPlayer(player)
+			}
+
+			// store aggregates in repository
+			s.players.Add(player)
+			s.teams.Add(team)
+
+			err = s.UnassignPlayerFromTeam(tc.group, tc.person)
+
+			if !errors.Is(err, tc.expectedErr) {
+				t.Errorf("Expected %v, but got %v.", tc.expectedErr, err)
+			}
+		})
+	}
+}
