@@ -197,6 +197,47 @@ func TestTeam_AssignPlayer(t *testing.T) {
 	}
 }
 
+func TestTeam_Unassignplayer(t *testing.T) {
+	type testCase struct {
+		test        string
+		player      *Player
+		team        *Team
+		expectedErr error
+	}
+	testCases := []testCase{
+		{
+			test: "Unassign player to team",
+			player: NewPlayerFromEvents([]event.Event{
+				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
+			}),
+			team: NewTeamFromEvents([]event.Event{
+				&event.TeamCreated{ID: exampleTeamUUID, Name: exampleTeamName},
+				&event.PlayerAssignedToTeam{ID: exampleTeamUUID, PlayerId: examplePlayerUUID, PlayerName: examplePlayerName},
+			}),
+			expectedErr: nil,
+		},
+		{
+			test: "Try to unassigned a player that is not assigned to team",
+			player: NewPlayerFromEvents([]event.Event{
+				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
+			}),
+			team: NewTeamFromEvents([]event.Event{
+				&event.TeamCreated{ID: exampleTeamUUID, Name: exampleTeamName},
+			}),
+			expectedErr: ErrPlayerNotAssignedToTeam,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.test, func(t *testing.T) {
+			err := tc.team.UnassignPlayer(tc.player)
+			if err != tc.expectedErr {
+				t.Errorf("Expected error %v, got %v", tc.expectedErr, err)
+			}
+		})
+	}
+}
+
 func TestTeam_GetPlayers(t *testing.T) {
 	type testCase struct {
 		test        string

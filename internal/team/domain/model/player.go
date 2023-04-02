@@ -13,6 +13,7 @@ var (
 	ErrPlayerAlreadyActivated   = errors.New("model: player is already activated")
 	ErrPlayerAlreadyDeactivated = errors.New("model: player is already inactive")
 	ErrTeamAlreadyAssigned      = errors.New("model: team already assigned to player")
+	ErrTeamNotAssignedToPlayer  = errors.New("model: team not assigned to player")
 )
 
 // TeamMapping stores the mapping of registered team ids to group entities.
@@ -119,6 +120,21 @@ func (p *Player) AssignTeam(t *Team) error {
 	return nil
 }
 
+// UnassignTeam unassigns team from player.
+func (p *Player) UnassignTeam(t *Team) error {
+	if _, ok := p.teams[t.group.ID]; !ok {
+		return ErrTeamNotAssignedToPlayer
+	}
+
+	p.register(&event.TeamUnassignedFromPlayer{
+		ID:       p.person.ID,
+		TeamId:   t.group.ID,
+		TeamName: t.group.Name,
+	})
+
+	return nil
+}
+
 // Apply applies player events to the player aggregate.
 func (p *Player) Apply(e event.Event, new bool) {
 	switch pe := e.(type) {
@@ -138,6 +154,9 @@ func (p *Player) Apply(e event.Event, new bool) {
 
 	case *event.TeamAssignedToPlayer:
 		p.teams[pe.TeamId] = &entity.Group{ID: pe.TeamId, Name: pe.TeamName}
+
+	case *event.TeamUnassignedFromPlayer:
+		delete(p.teams, pe.TeamId)
 	}
 
 	if !new {
