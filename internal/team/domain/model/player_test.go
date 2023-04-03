@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/logan-connolly/teammate/internal/entity"
 	"github.com/logan-connolly/teammate/internal/team/domain/event"
+	"github.com/matryer/is"
 )
 
 var (
@@ -34,10 +35,9 @@ func TestPlayer_NewPlayer(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
+			is := is.New(t)
 			_, err := NewPlayer(tc.person)
-			if err != tc.expectedErr {
-				t.Errorf("Expected error %v, got %v", tc.expectedErr, err)
-			}
+			is.Equal(err, tc.expectedErr)
 		})
 	}
 }
@@ -68,16 +68,11 @@ func TestPlayer_NewEvents(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
+			is := is.New(t)
 			p := NewPlayerFromEvents(tc.events)
-			if p.GetID() != examplePlayerUUID {
-				t.Errorf("Expected %v, got %v", examplePlayerUUID, p.GetID())
-			}
-			if p.GetName() != examplePlayerName {
-				t.Errorf("Expected %v, got %v", examplePlayerName, p.GetName())
-			}
-			if p.IsActivated() != tc.expectedIsActivated {
-				t.Errorf("Expected %v, got %v", tc.expectedIsActivated, p.IsActivated())
-			}
+			is.Equal(p.GetID(), examplePlayerUUID)
+			is.Equal(p.GetName(), examplePlayerName)
+			is.Equal(p.IsActivated(), tc.expectedIsActivated)
 		})
 	}
 }
@@ -108,13 +103,10 @@ func TestPlayer_Activate(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
+			is := is.New(t)
 			err := tc.player.Activate()
-			if err != tc.expectedErr {
-				t.Errorf("Expected error %v, got %v", tc.expectedErr, err)
-			}
-			if !tc.player.IsActivated() {
-				t.Fatal("player should always be activated in these cases.")
-			}
+			is.Equal(err, tc.expectedErr)
+			is.True(tc.player.IsActivated())
 		})
 	}
 }
@@ -145,13 +137,10 @@ func TestPlayer_Deactivate(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
+			is := is.New(t)
 			err := tc.player.Deactivate()
-			if err != tc.expectedErr {
-				t.Errorf("Expected error %v, got %v", tc.expectedErr, err)
-			}
-			if tc.player.IsActivated() {
-				t.Fatal("player should always be deactivated in these cases.")
-			}
+			is.Equal(tc.expectedErr, err)
+			is.Equal(tc.player.IsActivated(), false)
 		})
 	}
 }
@@ -189,10 +178,9 @@ func TestPlayer_AssignTeam(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
+			is := is.New(t)
 			err := tc.player.AssignTeam(tc.team)
-			if err != tc.expectedErr {
-				t.Errorf("Expected error %v, got %v", tc.expectedErr, err)
-			}
+			is.Equal(err, tc.expectedErr)
 		})
 	}
 }
@@ -230,10 +218,9 @@ func TestPlayer_UnassignTeam(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
+			is := is.New(t)
 			err := tc.player.UnassignTeam(tc.team)
-			if err != tc.expectedErr {
-				t.Errorf("Expected error %v, got %v", tc.expectedErr, err)
-			}
+			is.Equal(err, tc.expectedErr)
 		})
 	}
 }
@@ -271,16 +258,16 @@ func TestPlayer_GetTeams(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
+			is := is.New(t)
 			team := tc.player.GetTeams()
-			if len(team) != tc.teamCount {
-				t.Errorf("Expected %d, got %d", tc.teamCount, len(team))
-			}
+			is.Equal(len(team), tc.teamCount)
 		})
 	}
 }
 
 func TestPlayer_Events(t *testing.T) {
 	t.Run("Event log is populated", func(t *testing.T) {
+		is := is.New(t)
 		player, err := NewPlayer(&entity.Person{ID: examplePlayerUUID, Name: examplePlayerName})
 		if err != nil {
 			t.Fatalf("Did not expect an error: %v", err)
@@ -288,28 +275,23 @@ func TestPlayer_Events(t *testing.T) {
 		player.Deactivate()
 		player.Activate()
 
-		want := 3
 		got := len(player.Events())
 
-		if want != got {
-			t.Errorf("Expected %v, got %v", want, got)
-		}
+		is.Equal(got, 3)
 	})
 }
 
 func TestPlayer_Version(t *testing.T) {
 	t.Run("Version is properly updated", func(t *testing.T) {
+		is := is.New(t)
 		p := NewPlayerFromEvents([]event.Event{
 			&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
 			&event.PlayerDeactivated{ID: examplePlayerUUID},
 			&event.PlayerActivated{ID: examplePlayerUUID},
 		})
 
-		want := 3
 		got := p.Version()
 
-		if want != got {
-			t.Errorf("Expected %v, got %v", want, got)
-		}
+		is.Equal(got, 3)
 	})
 }

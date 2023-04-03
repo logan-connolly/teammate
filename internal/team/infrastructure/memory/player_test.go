@@ -1,7 +1,6 @@
 package memory
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/google/uuid"
@@ -9,6 +8,7 @@ import (
 	"github.com/logan-connolly/teammate/internal/team/domain/event"
 	"github.com/logan-connolly/teammate/internal/team/domain/model"
 	"github.com/logan-connolly/teammate/internal/team/domain/repository"
+	"github.com/matryer/is"
 )
 
 var (
@@ -40,6 +40,7 @@ func TestMemoryPlayerRepository_Get(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
+			is := is.New(t)
 			repo := NewMemoryPlayerRepository()
 			repo.players[examplePlayerUUID] = []event.Event{
 				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
@@ -47,9 +48,7 @@ func TestMemoryPlayerRepository_Get(t *testing.T) {
 
 			_, err := repo.Get(tc.person)
 
-			if !errors.Is(err, tc.expectedErr) {
-				t.Errorf("Expected error %v, got %v", tc.expectedErr, err)
-			}
+			is.Equal(err, tc.expectedErr)
 		})
 	}
 }
@@ -96,17 +95,14 @@ func TestMemoryPlayerRepository_GetTeams(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
+			is := is.New(t)
 			repo := NewMemoryPlayerRepository()
 			repo.players[tc.playerId] = tc.events
 
 			teams, err := repo.GetTeams(&entity.Person{ID: examplePlayerUUID, Name: examplePlayerName})
 
-			if !errors.Is(err, tc.expectedErr) {
-				t.Errorf("Expected error %v, got %v", tc.expectedErr, err)
-			}
-			if len(teams) != tc.teamCount {
-				t.Errorf("Expected %v, got %d", tc.teamCount, len(teams))
-			}
+			is.Equal(err, tc.expectedErr)
+			is.Equal(len(teams), tc.teamCount)
 		})
 	}
 }
@@ -136,6 +132,7 @@ func TestMemoryPlayerRepository_Add(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
+			is := is.New(t)
 			r := NewMemoryPlayerRepository()
 			p := model.NewPlayerFromEvents([]event.Event{
 				&event.PlayerCreated{ID: tc.id, Name: tc.name},
@@ -144,9 +141,7 @@ func TestMemoryPlayerRepository_Add(t *testing.T) {
 
 			err := r.Add(p)
 
-			if !errors.Is(err, tc.expectedErr) {
-				t.Errorf("Expected error %v, got %v", tc.expectedErr, err)
-			}
+			is.Equal(err, tc.expectedErr)
 		})
 	}
 }
@@ -182,6 +177,7 @@ func TestMemoryPlayerRepository_Update(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
+			is := is.New(t)
 			r := NewMemoryPlayerRepository()
 			p := model.NewPlayerFromEvents([]event.Event{
 				&event.PlayerCreated{ID: examplePlayerUUID, Name: exampleTeamName},
@@ -195,9 +191,7 @@ func TestMemoryPlayerRepository_Update(t *testing.T) {
 
 			err := r.Update(p)
 
-			if !errors.Is(err, tc.expectedErr) {
-				t.Errorf("Expected error %v, got %v", tc.expectedErr, err)
-			}
+			is.Equal(err, tc.expectedErr)
 		})
 	}
 }

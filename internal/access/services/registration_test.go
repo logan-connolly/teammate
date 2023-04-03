@@ -1,8 +1,9 @@
 package services
 
 import (
-	"errors"
 	"testing"
+
+	"github.com/matryer/is"
 )
 
 func TestNewRegistrationService(t *testing.T) {
@@ -31,10 +32,9 @@ func TestNewRegistrationService(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
+			is := is.New(t)
 			_, err := NewRegistrationService(tc.testConfig())
-			if !errors.Is(err, tc.expectedErr) {
-				t.Errorf("Expected %v, but got %v.", tc.expectedErr, err)
-			}
+			is.Equal(err, tc.expectedErr)
 		})
 	}
 }

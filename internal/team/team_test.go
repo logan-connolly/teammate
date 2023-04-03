@@ -1,22 +1,21 @@
 package team
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/logan-connolly/teammate/internal/team/services"
+	"github.com/matryer/is"
 )
 
 func TestMemoryApplication(t *testing.T) {
 	t.Run("Init team app", func(t *testing.T) {
+		is := is.New(t)
 		_, err := NewMemoryApplication()
-
-		if !errors.Is(err, nil) {
-			t.Errorf("Wanted %v, but got %v", nil, err)
-		}
+		is.NoErr(err)
 	})
 
 	t.Run("Init failure due to bad roster service config", func(t *testing.T) {
+		is := is.New(t)
 		WithInvalidMemoryConfig := func() services.RosterConfiguration {
 			return func(s *services.RosterService) error {
 				return services.ErrInvalidRosterConfig
@@ -27,9 +26,7 @@ func TestMemoryApplication(t *testing.T) {
 
 		_, err := NewMemoryApplication()
 
-		if !errors.Is(err, services.ErrInvalidRosterConfig) {
-			t.Errorf("Wanted %v, but got %v", services.ErrInvalidRosterConfig, err)
-		}
+		is.Equal(err, services.ErrInvalidRosterConfig)
 
 		// clean up memoryConfigs
 		memoryConfigs = originalMemoryConfigs

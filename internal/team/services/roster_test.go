@@ -1,13 +1,13 @@
 package services
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/google/uuid"
 	"github.com/logan-connolly/teammate/internal/entity"
 	"github.com/logan-connolly/teammate/internal/team/domain/model"
 	"github.com/logan-connolly/teammate/internal/team/domain/repository"
+	"github.com/matryer/is"
 )
 
 var (
@@ -48,10 +48,9 @@ func TestNewRosterService(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
+			is := is.New(t)
 			_, err := NewRosterService(tc.testConfig())
-			if !errors.Is(err, tc.expectedErr) {
-				t.Errorf("Expected %v, but got %v.", tc.expectedErr, err)
-			}
+			is.Equal(tc.expectedErr, err)
 		})
 	}
 }
@@ -103,6 +102,8 @@ func TestRosterService_AssignPlayerToTeam(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
+			is := is.New(t)
+
 			// initialize roster service
 			s, err := NewRosterService(WithMemoryPlayerRepository(), WithMemoryTeamRepository())
 
@@ -124,9 +125,7 @@ func TestRosterService_AssignPlayerToTeam(t *testing.T) {
 
 			err = s.AssignPlayerToTeam(tc.group, tc.person)
 
-			if !errors.Is(err, tc.expectedErr) {
-				t.Errorf("Expected %v, but got %v.", tc.expectedErr, err)
-			}
+			is.Equal(err, tc.expectedErr)
 		})
 	}
 }
@@ -180,6 +179,8 @@ func TestRosterService_UnassignPlayerToTeam(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
+			is := is.New(t)
+
 			// initialize roster service
 			s, err := NewRosterService(WithMemoryPlayerRepository(), WithMemoryTeamRepository())
 
@@ -201,9 +202,7 @@ func TestRosterService_UnassignPlayerToTeam(t *testing.T) {
 
 			err = s.UnassignPlayerFromTeam(tc.group, tc.person)
 
-			if !errors.Is(err, tc.expectedErr) {
-				t.Errorf("Expected %v, but got %v.", tc.expectedErr, err)
-			}
+			is.Equal(err, tc.expectedErr)
 		})
 	}
 }

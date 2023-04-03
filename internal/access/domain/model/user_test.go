@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/logan-connolly/teammate/internal/access/domain/event"
 	"github.com/logan-connolly/teammate/internal/entity"
+	"github.com/matryer/is"
 )
 
 var (
@@ -46,10 +47,9 @@ func TestUser_NewUser(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
+			is := is.New(t)
 			_, err := NewUser(tc.person, tc.email)
-			if err != tc.expectedErr {
-				t.Errorf("Expected error %v, got %v", tc.expectedErr, err)
-			}
+			is.Equal(err, tc.expectedErr)
 		})
 	}
 }
@@ -80,19 +80,12 @@ func TestUser_NewUserEvents(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
+			is := is.New(t)
 			u := NewUserFromEvents(tc.events)
-			if u.GetID() != exampleUUID {
-				t.Errorf("Expected %v, got %v", exampleUUID, u.GetID())
-			}
-			if u.GetName() != exampleName {
-				t.Errorf("Expected %v, got %v", exampleName, u.GetName())
-			}
-			if u.GetEmail() != exampleEmail {
-				t.Errorf("Expected %v, got %v", exampleEmail, u.GetEmail())
-			}
-			if u.IsActivated() != tc.expectedIsActivated {
-				t.Errorf("Expected %v, got %v", tc.expectedIsActivated, u.IsActivated())
-			}
+			is.Equal(u.GetID(), exampleUUID)
+			is.Equal(u.GetName(), exampleName)
+			is.Equal(u.GetEmail(), exampleEmail)
+			is.Equal(u.IsActivated(), tc.expectedIsActivated)
 		})
 	}
 }
@@ -126,10 +119,9 @@ func TestUser_UpdateName(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
+			is := is.New(t)
 			err := tc.user.UpdateName(tc.newName)
-			if err != tc.expectedErr {
-				t.Errorf("Expected error %v, got %v", tc.expectedErr, err)
-			}
+			is.Equal(err, tc.expectedErr)
 		})
 	}
 }
@@ -163,10 +155,9 @@ func TestUser_UpdateEmail(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
+			is := is.New(t)
 			err := tc.user.UpdateEmail(tc.newEmail)
-			if err != tc.expectedErr {
-				t.Errorf("Expected error %v, got %v", tc.expectedErr, err)
-			}
+			is.Equal(err, tc.expectedErr)
 		})
 	}
 }
@@ -197,13 +188,10 @@ func TestUser_Activate(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
+			is := is.New(t)
 			err := tc.user.Activate()
-			if err != tc.expectedErr {
-				t.Errorf("Expected error %v, got %v", tc.expectedErr, err)
-			}
-			if !tc.user.IsActivated() {
-				t.Fatal("user should always be activated in these cases.")
-			}
+			is.Equal(err, tc.expectedErr)
+			is.True(tc.user.IsActivated())
 		})
 	}
 }
@@ -234,19 +222,17 @@ func TestUser_Deactivate(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
+			is := is.New(t)
 			err := tc.user.Deactivate()
-			if err != tc.expectedErr {
-				t.Errorf("Expected error %v, got %v", tc.expectedErr, err)
-			}
-			if tc.user.IsActivated() {
-				t.Fatal("user should always be deactivated in these cases.")
-			}
+			is.Equal(err, tc.expectedErr)
+			is.Equal(tc.user.IsActivated(), false)
 		})
 	}
 }
 
 func TestUser_Events(t *testing.T) {
 	t.Run("Event log is populated", func(t *testing.T) {
+		is := is.New(t)
 		u, err := NewUser(&entity.Person{ID: exampleUUID, Name: exampleName}, exampleEmail)
 		if err != nil {
 			t.Fatalf("Did not expect an error: %v", err)
@@ -254,28 +240,23 @@ func TestUser_Events(t *testing.T) {
 		u.Deactivate()
 		u.Activate()
 
-		want := 3
 		got := len(u.Events())
 
-		if want != got {
-			t.Errorf("Expected %v, got %v", want, got)
-		}
+		is.Equal(got, len(u.Events()))
 	})
 }
 
 func TestUser_Version(t *testing.T) {
 	t.Run("Version is properly updated", func(t *testing.T) {
+		is := is.New(t)
 		u := NewUserFromEvents([]event.Event{
 			&event.UserRegistered{ID: exampleUUID, Name: exampleName, Email: exampleEmail},
 			&event.UserDeactivated{ID: exampleUUID},
 			&event.UserActivated{ID: exampleUUID},
 		})
 
-		want := 3
 		got := u.Version()
 
-		if want != got {
-			t.Errorf("Expected %v, got %v", want, got)
-		}
+		is.Equal(got, 3)
 	})
 }

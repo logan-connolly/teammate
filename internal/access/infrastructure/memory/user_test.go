@@ -1,7 +1,6 @@
 package memory
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/google/uuid"
@@ -9,6 +8,7 @@ import (
 	"github.com/logan-connolly/teammate/internal/access/domain/model"
 	"github.com/logan-connolly/teammate/internal/access/domain/repository"
 	"github.com/logan-connolly/teammate/internal/entity"
+	"github.com/matryer/is"
 )
 
 var (
@@ -42,6 +42,7 @@ func TestMemoryAccessRepository_Get(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
+			is := is.New(t)
 			repo := NewMemoryUserRepository()
 			repo.users[exampleUUID] = []event.Event{
 				&event.UserRegistered{ID: exampleUUID, Name: exampleName, Email: exampleEmail},
@@ -49,9 +50,7 @@ func TestMemoryAccessRepository_Get(t *testing.T) {
 
 			_, err := repo.Get(tc.person)
 
-			if !errors.Is(err, tc.expectedErr) {
-				t.Errorf("Expected error %v, got %v", tc.expectedErr, err)
-			}
+			is.Equal(err, tc.expectedErr)
 		})
 	}
 }
@@ -84,6 +83,7 @@ func TestMemoryAccessRepository_Add(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
+			is := is.New(t)
 			r := NewMemoryUserRepository()
 			u := model.NewUserFromEvents([]event.Event{
 				&event.UserRegistered{ID: tc.id, Name: tc.name, Email: tc.email},
@@ -92,9 +92,7 @@ func TestMemoryAccessRepository_Add(t *testing.T) {
 
 			err := r.Add(u)
 
-			if !errors.Is(err, tc.expectedErr) {
-				t.Errorf("Expected error %v, got %v", tc.expectedErr, err)
-			}
+			is.Equal(err, tc.expectedErr)
 		})
 	}
 }
@@ -130,6 +128,7 @@ func TestMemoryAccessRepository_Update(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
+			is := is.New(t)
 			r := NewMemoryUserRepository()
 			u := model.NewUserFromEvents([]event.Event{
 				&event.UserRegistered{ID: exampleUUID, Name: exampleName, Email: exampleEmail},
@@ -143,9 +142,7 @@ func TestMemoryAccessRepository_Update(t *testing.T) {
 
 			err := r.Update(u)
 
-			if !errors.Is(err, tc.expectedErr) {
-				t.Errorf("Expected error %v, got %v", tc.expectedErr, err)
-			}
+			is.Equal(err, tc.expectedErr)
 		})
 	}
 }

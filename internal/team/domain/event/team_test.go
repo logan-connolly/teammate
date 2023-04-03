@@ -1,6 +1,10 @@
 package event
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/matryer/is"
+)
 
 func TestTeamEvent(t *testing.T) {
 	type testCase struct {
@@ -39,10 +43,9 @@ func TestTeamEvent(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
+			is := is.New(t)
 			got := tc.event.eventName()
-			if got != tc.expected {
-				t.Errorf("Expected %v, got %v", tc.expected, got)
-			}
+			is.Equal(got, tc.expected)
 		})
 	}
 }
