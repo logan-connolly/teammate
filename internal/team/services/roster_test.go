@@ -17,33 +17,21 @@ var (
 	anotherPerson = &entity.Person{ID: uuid.MustParse("d38ad10b-58cc-0372-8567-0e02b2c3d479"), Name: "Jackie"}
 )
 
+func withBadConfig() RosterConfiguration {
+	return func(s *RosterService) error {
+		return ErrInvalidRosterConfig
+	}
+}
+
 func TestNewRosterService(t *testing.T) {
-	type testCase struct {
+	testCases := []struct {
 		test        string
 		testConfig  func() RosterConfiguration
 		expectedErr error
-	}
-
-	testCases := []testCase{
-		{
-			test:        "With in-memory player repository",
-			testConfig:  WithMemoryPlayerRepository,
-			expectedErr: nil,
-		},
-		{
-			test:        "With in-memory team repository",
-			testConfig:  WithMemoryTeamRepository,
-			expectedErr: nil,
-		},
-		{
-			test: "With bad config",
-			testConfig: func() RosterConfiguration {
-				return func(s *RosterService) error {
-					return ErrInvalidRosterConfig
-				}
-			},
-			expectedErr: ErrInvalidRosterConfig,
-		},
+	}{
+		{"With in-memory player repository", WithMemoryPlayerRepository, nil},
+		{"With in-memory team repository", WithMemoryTeamRepository, nil},
+		{"With bad config", withBadConfig, ErrInvalidRosterConfig},
 	}
 
 	for _, tc := range testCases {
@@ -56,48 +44,19 @@ func TestNewRosterService(t *testing.T) {
 }
 
 func TestRosterService_AssignPlayerToTeam(t *testing.T) {
-	type testCase struct {
+	testCases := []struct {
 		test                string
 		group               *entity.Group
 		person              *entity.Person
 		alreadyAssignPlayer bool
 		alreadyAssignTeam   bool
 		expectedErr         error
-	}
-
-	testCases := []testCase{
-		{
-			test:        "Team not found",
-			group:       anotherGroup,
-			person:      examplePerson,
-			expectedErr: repository.ErrTeamNotFound,
-		},
-		{
-			test:        "Player not found",
-			group:       exampleGroup,
-			person:      anotherPerson,
-			expectedErr: repository.ErrPlayerNotFound,
-		},
-		{
-			test:              "Team already assigned to player",
-			group:             exampleGroup,
-			person:            examplePerson,
-			alreadyAssignTeam: true,
-			expectedErr:       model.ErrTeamAlreadyAssigned,
-		},
-		{
-			test:                "Player already assigned to Team",
-			group:               exampleGroup,
-			person:              examplePerson,
-			alreadyAssignPlayer: true,
-			expectedErr:         model.ErrPlayerAlreadyAssigned,
-		},
-		{
-			test:        "Player assigned to team",
-			group:       exampleGroup,
-			person:      examplePerson,
-			expectedErr: nil,
-		},
+	}{
+		{"Team not found", anotherGroup, examplePerson, false, false, repository.ErrTeamNotFound},
+		{"Player not found", exampleGroup, anotherPerson, false, false, repository.ErrPlayerNotFound},
+		{"Team already assigned to player", exampleGroup, examplePerson, false, true, model.ErrTeamAlreadyAssigned},
+		{"Player already assigned to Team", exampleGroup, examplePerson, true, false, model.ErrPlayerAlreadyAssigned},
+		{"Player assigned to team", exampleGroup, examplePerson, false, false, nil},
 	}
 
 	for _, tc := range testCases {
@@ -131,50 +90,19 @@ func TestRosterService_AssignPlayerToTeam(t *testing.T) {
 }
 
 func TestRosterService_UnassignPlayerToTeam(t *testing.T) {
-	type testCase struct {
+	testCases := []struct {
 		test         string
 		group        *entity.Group
 		person       *entity.Person
 		assignPlayer bool
 		assignTeam   bool
 		expectedErr  error
-	}
-
-	testCases := []testCase{
-		{
-			test:        "Team not found",
-			group:       anotherGroup,
-			person:      examplePerson,
-			expectedErr: repository.ErrTeamNotFound,
-		},
-		{
-			test:        "Player not found",
-			group:       exampleGroup,
-			person:      anotherPerson,
-			expectedErr: repository.ErrPlayerNotFound,
-		},
-		{
-			test:         "Team not assigned to player",
-			group:        exampleGroup,
-			person:       examplePerson,
-			assignPlayer: true,
-			expectedErr:  model.ErrTeamNotAssignedToPlayer,
-		},
-		{
-			test:        "Player not assigned to team",
-			group:       exampleGroup,
-			person:      examplePerson,
-			assignTeam:  true,
-			expectedErr: model.ErrPlayerNotAssignedToTeam,
-		},
-		{
-			test:         "Player unassigned from team",
-			group:        exampleGroup,
-			person:       examplePerson,
-			assignPlayer: true,
-			assignTeam:   true,
-			expectedErr:  nil,
-		},
+	}{
+		{"Team not found", anotherGroup, examplePerson, false, false, repository.ErrTeamNotFound},
+		{"Player not found", exampleGroup, anotherPerson, false, false, repository.ErrPlayerNotFound},
+		{"Team not assigned to player", exampleGroup, examplePerson, true, false, model.ErrTeamNotAssignedToPlayer},
+		{"Player not assigned to team", exampleGroup, examplePerson, false, true, model.ErrPlayerNotAssignedToTeam},
+		{"Player unassigned from team", exampleGroup, examplePerson, true, true, nil},
 	}
 
 	for _, tc := range testCases {

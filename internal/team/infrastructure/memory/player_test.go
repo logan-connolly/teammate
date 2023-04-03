@@ -12,29 +12,30 @@ import (
 )
 
 var (
-	examplePlayerUUID = uuid.MustParse("f55e93f8-c952-11ed-afa1-0242ac120002")
-	anotherPlayerUUID = uuid.MustParse("f47ac10b-58cc-0372-8567-0e02b2c3d479")
-	examplePlayerName = "Logan"
-	anotherPlayerName = "Emily"
+	examplePlayerUUID    = uuid.MustParse("f55e93f8-c952-11ed-afa1-0242ac120002")
+	anotherPlayerUUID    = uuid.MustParse("f47ac10b-58cc-0372-8567-0e02b2c3d479")
+	examplePlayerName    = "Logan"
+	anotherPlayerName    = "Emily"
+	playerCreated        = &event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName}
+	anotherPlayerCreated = &event.PlayerCreated{ID: anotherPlayerUUID, Name: anotherPlayerName}
+	teamAssigned         = &event.TeamAssignedToPlayer{ID: examplePlayerUUID, TeamId: exampleTeamUUID, TeamName: exampleTeamName}
 )
 
 func TestMemoryPlayerRepository_Get(t *testing.T) {
-	type testCase struct {
+	testCases := []struct {
 		test        string
 		person      *entity.Person
 		expectedErr error
-	}
-
-	testCases := []testCase{
+	}{
 		{
-			test:        "No player with this person",
-			person:      &entity.Person{ID: anotherPlayerUUID, Name: anotherTeamName},
-			expectedErr: repository.ErrPlayerNotFound,
+			"No player with this person",
+			&entity.Person{ID: anotherPlayerUUID, Name: anotherTeamName},
+			repository.ErrPlayerNotFound,
 		},
 		{
-			test:        "Player found",
-			person:      &entity.Person{ID: examplePlayerUUID, Name: exampleTeamName},
-			expectedErr: nil,
+			"Player found",
+			&entity.Person{ID: examplePlayerUUID, Name: exampleTeamName},
+			nil,
 		},
 	}
 
@@ -42,9 +43,7 @@ func TestMemoryPlayerRepository_Get(t *testing.T) {
 		t.Run(tc.test, func(t *testing.T) {
 			is := is.New(t)
 			repo := NewMemoryPlayerRepository()
-			repo.players[examplePlayerUUID] = []event.Event{
-				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
-			}
+			repo.players[examplePlayerUUID] = []event.Event{playerCreated}
 
 			_, err := repo.Get(tc.person)
 
@@ -54,42 +53,33 @@ func TestMemoryPlayerRepository_Get(t *testing.T) {
 }
 
 func TestMemoryPlayerRepository_GetTeams(t *testing.T) {
-	type testCase struct {
+	testCases := []struct {
 		test        string
 		playerId    uuid.UUID
-		teamCount   int
 		events      []event.Event
+		teamCount   int
 		expectedErr error
-	}
-
-	testCases := []testCase{
+	}{
 		{
-			test:      "Player not found",
-			playerId:  anotherPlayerUUID,
-			teamCount: 0,
-			events: []event.Event{
-				&event.PlayerCreated{ID: anotherPlayerUUID, Name: anotherPlayerName},
-			},
-			expectedErr: repository.ErrPlayerNotFound,
+			"Player not found",
+			anotherPlayerUUID,
+			[]event.Event{anotherPlayerCreated},
+			0,
+			repository.ErrPlayerNotFound,
 		},
 		{
-			test:      "No team is assigned",
-			playerId:  examplePlayerUUID,
-			teamCount: 0,
-			events: []event.Event{
-				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
-			},
-			expectedErr: nil,
+			"No team is assigned",
+			examplePlayerUUID,
+			[]event.Event{playerCreated},
+			0,
+			nil,
 		},
 		{
-			test:      "One team is assigned",
-			playerId:  examplePlayerUUID,
-			teamCount: 1,
-			events: []event.Event{
-				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
-				&event.TeamAssignedToPlayer{ID: examplePlayerUUID, TeamId: exampleTeamUUID, TeamName: exampleTeamName},
-			},
-			expectedErr: nil,
+			"One team is assigned",
+			examplePlayerUUID,
+			[]event.Event{playerCreated, teamAssigned},
+			1,
+			nil,
 		},
 	}
 
@@ -108,26 +98,14 @@ func TestMemoryPlayerRepository_GetTeams(t *testing.T) {
 }
 
 func TestMemoryPlayerRepository_Add(t *testing.T) {
-	type testCase struct {
+	testCases := []struct {
 		test        string
 		id          uuid.UUID
 		name        string
 		expectedErr error
-	}
-
-	testCases := []testCase{
-		{
-			test:        "Successfully add a player",
-			id:          anotherPlayerUUID,
-			name:        anotherPlayerName,
-			expectedErr: nil,
-		},
-		{
-			test:        "Player already exists error",
-			id:          examplePlayerUUID,
-			name:        examplePlayerName,
-			expectedErr: repository.ErrPlayerAlreadyExists,
-		},
+	}{
+		{"Successfully add a player", anotherPlayerUUID, anotherPlayerName, nil},
+		{"Player already exists error", examplePlayerUUID, examplePlayerName, repository.ErrPlayerAlreadyExists},
 	}
 
 	for _, tc := range testCases {
@@ -147,41 +125,22 @@ func TestMemoryPlayerRepository_Add(t *testing.T) {
 }
 
 func TestMemoryPlayerRepository_Update(t *testing.T) {
-	type testCase struct {
+	testCases := []struct {
 		test        string
 		register    bool
 		deactivate  bool
 		expectedErr error
-	}
-
-	testCases := []testCase{
-		{
-			test:        "Update player",
-			register:    true,
-			deactivate:  true,
-			expectedErr: nil,
-		},
-		{
-			test:        "Player has no changes",
-			register:    true,
-			deactivate:  false,
-			expectedErr: repository.ErrPlayerHasNoUpdates,
-		},
-		{
-			test:        "Player not found",
-			register:    false,
-			deactivate:  true,
-			expectedErr: repository.ErrPlayerNotFound,
-		},
+	}{
+		{"Update player", true, true, nil},
+		{"Player has no changes", true, false, repository.ErrPlayerHasNoUpdates},
+		{"Player not found", false, true, repository.ErrPlayerNotFound},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
 			is := is.New(t)
 			r := NewMemoryPlayerRepository()
-			p := model.NewPlayerFromEvents([]event.Event{
-				&event.PlayerCreated{ID: examplePlayerUUID, Name: exampleTeamName},
-			})
+			p := model.NewPlayerFromEvents([]event.Event{playerCreated})
 			if tc.register {
 				r.players[examplePlayerUUID] = p.Events()
 			}

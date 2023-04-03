@@ -10,39 +10,25 @@ import (
 )
 
 var (
-	exampleUUID  = uuid.MustParse("f55e93f8-c952-11ed-afa1-0242ac120002")
-	exampleName  = "Mike Ditka"
-	exampleEmail = "ditka@teammate.com"
-	anotherName  = "Joe Gibbs"
-	anotherEmail = "gibbs@teammate.com"
+	exampleUUID     = uuid.MustParse("f55e93f8-c952-11ed-afa1-0242ac120002")
+	exampleName     = "Mike Ditka"
+	exampleEmail    = "ditka@teammate.com"
+	anotherName     = "Joe Gibbs"
+	anotherEmail    = "gibbs@teammate.com"
+	userRegistered  = &event.UserRegistered{ID: exampleUUID, Name: exampleName, Email: exampleEmail}
+	userDeactivated = &event.UserDeactivated{ID: exampleUUID}
 )
 
 func TestUser_NewUser(t *testing.T) {
-	type testCase struct {
+	testCases := []struct {
 		test        string
 		person      *entity.Person
 		email       string
 		expectedErr error
-	}
-	testCases := []testCase{
-		{
-			test:        "Empty name validation",
-			person:      &entity.Person{ID: exampleUUID, Name: ""},
-			email:       exampleEmail,
-			expectedErr: ErrUserNameIsEmpty,
-		},
-		{
-			test:        "Empty name validation",
-			person:      &entity.Person{ID: exampleUUID, Name: exampleName},
-			email:       "",
-			expectedErr: ErrUserEmailIsEmpty,
-		},
-		{
-			test:        "Valid email and name",
-			person:      &entity.Person{ID: exampleUUID, Name: exampleName},
-			email:       exampleEmail,
-			expectedErr: nil,
-		},
+	}{
+		{"Empty name validation", &entity.Person{ID: exampleUUID, Name: ""}, exampleEmail, ErrUserNameIsEmpty},
+		{"Empty email validation", &entity.Person{ID: exampleUUID, Name: exampleName}, "", ErrUserEmailIsEmpty},
+		{"Valid email and name", &entity.Person{ID: exampleUUID, Name: exampleName}, exampleEmail, nil},
 	}
 
 	for _, tc := range testCases {
@@ -55,27 +41,13 @@ func TestUser_NewUser(t *testing.T) {
 }
 
 func TestUser_NewUserEvents(t *testing.T) {
-	type testCase struct {
+	testCases := []struct {
 		test                string
 		events              []event.Event
 		expectedIsActivated bool
-	}
-	testCases := []testCase{
-		{
-			test: "User registered",
-			events: []event.Event{
-				&event.UserRegistered{ID: exampleUUID, Name: exampleName, Email: exampleEmail},
-			},
-			expectedIsActivated: true,
-		},
-		{
-			test: "User registered and deactivated",
-			events: []event.Event{
-				&event.UserRegistered{ID: exampleUUID, Name: exampleName, Email: exampleEmail},
-				&event.UserDeactivated{ID: exampleUUID},
-			},
-			expectedIsActivated: false,
-		},
+	}{
+		{"User registered", []event.Event{userRegistered}, true},
+		{"User registered and deactivated", []event.Event{userRegistered, userDeactivated}, false},
 	}
 
 	for _, tc := range testCases {
@@ -91,29 +63,23 @@ func TestUser_NewUserEvents(t *testing.T) {
 }
 
 func TestUser_UpdateName(t *testing.T) {
-	type testCase struct {
+	testCases := []struct {
 		test        string
 		user        *User
 		newName     string
 		expectedErr error
-	}
-	testCases := []testCase{
+	}{
 		{
-			test: "Update name",
-			user: NewUserFromEvents([]event.Event{
-				&event.UserRegistered{ID: exampleUUID, Name: exampleName, Email: exampleEmail},
-			}),
-			newName:     anotherName,
-			expectedErr: nil,
+			"Update name",
+			NewUserFromEvents([]event.Event{userRegistered}),
+			anotherName,
+			nil,
 		},
 		{
-			test: "Update name with same name",
-			user: NewUserFromEvents([]event.Event{
-				&event.UserRegistered{ID: exampleUUID, Name: exampleName, Email: exampleEmail},
-				&event.UserDeactivated{ID: exampleUUID},
-			}),
-			newName:     exampleName,
-			expectedErr: ErrUserNameAlreadySetToValue,
+			"Update name with same name",
+			NewUserFromEvents([]event.Event{userRegistered, userDeactivated}),
+			exampleName,
+			ErrUserNameAlreadySetToValue,
 		},
 	}
 
@@ -127,29 +93,23 @@ func TestUser_UpdateName(t *testing.T) {
 }
 
 func TestUser_UpdateEmail(t *testing.T) {
-	type testCase struct {
+	testCases := []struct {
 		test        string
 		user        *User
 		newEmail    string
 		expectedErr error
-	}
-	testCases := []testCase{
+	}{
 		{
-			test: "Update email",
-			user: NewUserFromEvents([]event.Event{
-				&event.UserRegistered{ID: exampleUUID, Name: exampleName, Email: exampleEmail},
-			}),
-			newEmail:    anotherEmail,
-			expectedErr: nil,
+			"Update email",
+			NewUserFromEvents([]event.Event{userRegistered}),
+			anotherEmail,
+			nil,
 		},
 		{
-			test: "Update email with same email",
-			user: NewUserFromEvents([]event.Event{
-				&event.UserRegistered{ID: exampleUUID, Name: exampleName, Email: exampleEmail},
-				&event.UserDeactivated{ID: exampleUUID},
-			}),
-			newEmail:    exampleEmail,
-			expectedErr: ErrUserEmailAlreadySetToValue,
+			"Update email with same email",
+			NewUserFromEvents([]event.Event{userRegistered, userDeactivated}),
+			exampleEmail,
+			ErrUserEmailAlreadySetToValue,
 		},
 	}
 
@@ -163,26 +123,20 @@ func TestUser_UpdateEmail(t *testing.T) {
 }
 
 func TestUser_Activate(t *testing.T) {
-	type testCase struct {
+	testCases := []struct {
 		test        string
 		user        *User
 		expectedErr error
-	}
-	testCases := []testCase{
+	}{
 		{
-			test: "Activate active user",
-			user: NewUserFromEvents([]event.Event{
-				&event.UserRegistered{ID: exampleUUID, Name: exampleName, Email: exampleEmail},
-			}),
-			expectedErr: ErrUserAlreadyActivated,
+			"Activate active user",
+			NewUserFromEvents([]event.Event{userRegistered}),
+			ErrUserAlreadyActivated,
 		},
 		{
-			test: "Activate deactivated user",
-			user: NewUserFromEvents([]event.Event{
-				&event.UserRegistered{ID: exampleUUID, Name: exampleName, Email: exampleEmail},
-				&event.UserDeactivated{ID: exampleUUID},
-			}),
-			expectedErr: nil,
+			"Activate deactivated user",
+			NewUserFromEvents([]event.Event{userRegistered, userDeactivated}),
+			nil,
 		},
 	}
 
@@ -197,26 +151,20 @@ func TestUser_Activate(t *testing.T) {
 }
 
 func TestUser_Deactivate(t *testing.T) {
-	type testCase struct {
+	testCases := []struct {
 		test        string
 		user        *User
 		expectedErr error
-	}
-	testCases := []testCase{
+	}{
 		{
-			test: "Deactivate active user",
-			user: NewUserFromEvents([]event.Event{
-				&event.UserRegistered{ID: exampleUUID, Name: exampleName, Email: exampleEmail},
-			}),
-			expectedErr: nil,
+			"Deactivate active user",
+			NewUserFromEvents([]event.Event{userRegistered}),
+			nil,
 		},
 		{
-			test: "Deactivate deactivated user",
-			user: NewUserFromEvents([]event.Event{
-				&event.UserRegistered{ID: exampleUUID, Name: exampleName, Email: exampleEmail},
-				&event.UserDeactivated{ID: exampleUUID},
-			}),
-			expectedErr: ErrUserAlreadyDeactivated,
+			"Deactivate deactivated user",
+			NewUserFromEvents([]event.Event{userRegistered, userDeactivated}),
+			ErrUserAlreadyDeactivated,
 		},
 	}
 
@@ -240,23 +188,14 @@ func TestUser_Events(t *testing.T) {
 		u.Deactivate()
 		u.Activate()
 
-		got := len(u.Events())
-
-		is.Equal(got, len(u.Events()))
+		is.Equal(len(u.Events()), 3)
 	})
 }
 
 func TestUser_Version(t *testing.T) {
 	t.Run("Version is properly updated", func(t *testing.T) {
 		is := is.New(t)
-		u := NewUserFromEvents([]event.Event{
-			&event.UserRegistered{ID: exampleUUID, Name: exampleName, Email: exampleEmail},
-			&event.UserDeactivated{ID: exampleUUID},
-			&event.UserActivated{ID: exampleUUID},
-		})
-
-		got := u.Version()
-
-		is.Equal(got, 3)
+		u := NewUserFromEvents([]event.Event{userRegistered, userDeactivated})
+		is.Equal(u.Version(), 2)
 	})
 }

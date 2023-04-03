@@ -7,45 +7,22 @@ import (
 )
 
 func TestTeamEvent(t *testing.T) {
-	type testCase struct {
+	testCases := []struct {
 		test     string
 		event    Event
 		expected string
-	}
-
-	testCases := []testCase{
-		{
-			test:     "TeamCreated event name",
-			event:    &TeamCreated{},
-			expected: "TeamCreated",
-		},
-		{
-			test:     "TeamActivated event name",
-			event:    &TeamActivated{},
-			expected: "TeamActivated",
-		},
-		{
-			test:     "TeamDeactivated event name",
-			event:    &TeamDeactivated{},
-			expected: "TeamDeactivated",
-		},
-		{
-			test:     "PlayerAssignedToTeam event name",
-			event:    &PlayerAssignedToTeam{},
-			expected: "PlayerAssignedToTeam",
-		},
-		{
-			test:     "PlayerUnassignedFromTeam event name",
-			event:    &PlayerUnassignedFromTeam{},
-			expected: "PlayerUnassignedFromTeam",
-		},
+	}{
+		{"TeamCreated event name", &TeamCreated{}, "TeamCreated"},
+		{"TeamActivated event name", &TeamActivated{}, "TeamActivated"},
+		{"TeamDeactivated event name", &TeamDeactivated{}, "TeamDeactivated"},
+		{"PlayerAssignedToTeam event name", &PlayerAssignedToTeam{}, "PlayerAssignedToTeam"},
+		{"PlayerUnassignedFromTeam event name", &PlayerUnassignedFromTeam{}, "PlayerUnassignedFromTeam"},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
 			is := is.New(t)
-			got := tc.event.eventName()
-			is.Equal(got, tc.expected)
+			is.Equal(tc.event.eventName(), tc.expected)
 		})
 	}
 }

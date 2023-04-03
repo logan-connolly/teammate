@@ -12,25 +12,19 @@ import (
 var (
 	examplePlayerUUID = uuid.MustParse("f55e93f8-c952-11ed-afa1-0242ac120002")
 	examplePlayerName = "Logan"
+	playerCreated     = &event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName}
+	playerDeactivated = &event.PlayerDeactivated{ID: examplePlayerUUID}
+	teamAssigned      = &event.TeamAssignedToPlayer{ID: examplePlayerUUID, TeamId: exampleTeamUUID, TeamName: exampleTeamName}
 )
 
 func TestPlayer_NewPlayer(t *testing.T) {
-	type testCase struct {
+	testCases := []struct {
 		test        string
 		person      *entity.Person
 		expectedErr error
-	}
-	testCases := []testCase{
-		{
-			test:        "Empty name validation",
-			person:      &entity.Person{ID: examplePlayerUUID, Name: ""},
-			expectedErr: ErrInvalidPerson,
-		},
-		{
-			test:        "Valid name",
-			person:      &entity.Person{ID: examplePlayerUUID, Name: examplePlayerName},
-			expectedErr: nil,
-		},
+	}{
+		{"Empty name validation", &entity.Person{ID: examplePlayerUUID, Name: ""}, ErrInvalidPerson},
+		{"Valid name", &entity.Person{ID: examplePlayerUUID, Name: examplePlayerName}, nil},
 	}
 
 	for _, tc := range testCases {
@@ -43,27 +37,13 @@ func TestPlayer_NewPlayer(t *testing.T) {
 }
 
 func TestPlayer_NewEvents(t *testing.T) {
-	type testCase struct {
+	testCases := []struct {
 		test                string
 		events              []event.Event
 		expectedIsActivated bool
-	}
-	testCases := []testCase{
-		{
-			test: "Player registered",
-			events: []event.Event{
-				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
-			},
-			expectedIsActivated: true,
-		},
-		{
-			test: "Player registered and deactivated",
-			events: []event.Event{
-				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
-				&event.PlayerDeactivated{ID: examplePlayerUUID},
-			},
-			expectedIsActivated: false,
-		},
+	}{
+		{"Player registered", []event.Event{playerCreated}, true},
+		{"Player registered and deactivated", []event.Event{playerCreated, playerDeactivated}, false},
 	}
 
 	for _, tc := range testCases {
@@ -78,26 +58,20 @@ func TestPlayer_NewEvents(t *testing.T) {
 }
 
 func TestPlayer_Activate(t *testing.T) {
-	type testCase struct {
+	testCases := []struct {
 		test        string
 		player      *Player
 		expectedErr error
-	}
-	testCases := []testCase{
+	}{
 		{
-			test: "Activate active player",
-			player: NewPlayerFromEvents([]event.Event{
-				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
-			}),
-			expectedErr: ErrPlayerAlreadyActivated,
+			"Activate active player",
+			NewPlayerFromEvents([]event.Event{playerCreated}),
+			ErrPlayerAlreadyActivated,
 		},
 		{
-			test: "Activate deactivated player",
-			player: NewPlayerFromEvents([]event.Event{
-				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
-				&event.PlayerDeactivated{ID: examplePlayerUUID},
-			}),
-			expectedErr: nil,
+			"Activate deactivated player",
+			NewPlayerFromEvents([]event.Event{playerCreated, playerDeactivated}),
+			nil,
 		},
 	}
 
@@ -112,26 +86,20 @@ func TestPlayer_Activate(t *testing.T) {
 }
 
 func TestPlayer_Deactivate(t *testing.T) {
-	type testCase struct {
+	testCases := []struct {
 		test        string
 		player      *Player
 		expectedErr error
-	}
-	testCases := []testCase{
+	}{
 		{
-			test: "Deactivate active player",
-			player: NewPlayerFromEvents([]event.Event{
-				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
-			}),
-			expectedErr: nil,
+			"Deactivate active player",
+			NewPlayerFromEvents([]event.Event{playerCreated}),
+			nil,
 		},
 		{
-			test: "Deactivate deactivated player",
-			player: NewPlayerFromEvents([]event.Event{
-				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
-				&event.PlayerDeactivated{ID: examplePlayerUUID},
-			}),
-			expectedErr: ErrPlayerAlreadyDeactivated,
+			"Deactivate deactivated player",
+			NewPlayerFromEvents([]event.Event{playerCreated, playerDeactivated}),
+			ErrPlayerAlreadyDeactivated,
 		},
 	}
 
@@ -146,33 +114,23 @@ func TestPlayer_Deactivate(t *testing.T) {
 }
 
 func TestPlayer_AssignTeam(t *testing.T) {
-	type testCase struct {
+	testCases := []struct {
 		test        string
 		player      *Player
 		team        *Team
 		expectedErr error
-	}
-	testCases := []testCase{
+	}{
 		{
-			test: "Add team to player",
-			player: NewPlayerFromEvents([]event.Event{
-				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
-			}),
-			team: NewTeamFromEvents([]event.Event{
-				&event.TeamCreated{ID: exampleTeamUUID, Name: exampleTeamName},
-			}),
-			expectedErr: nil,
+			"Add team to player",
+			NewPlayerFromEvents([]event.Event{playerCreated}),
+			NewTeamFromEvents([]event.Event{teamCreated}),
+			nil,
 		},
 		{
-			test: "Add team that is already assigned to player",
-			player: NewPlayerFromEvents([]event.Event{
-				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
-				&event.TeamAssignedToPlayer{ID: examplePlayerUUID, TeamId: exampleTeamUUID, TeamName: exampleTeamName},
-			}),
-			team: NewTeamFromEvents([]event.Event{
-				&event.TeamCreated{ID: exampleTeamUUID, Name: exampleTeamName},
-			}),
-			expectedErr: ErrTeamAlreadyAssigned,
+			"Add team that is already assigned to player",
+			NewPlayerFromEvents([]event.Event{playerCreated, teamAssigned}),
+			NewTeamFromEvents([]event.Event{teamCreated}),
+			ErrTeamAlreadyAssigned,
 		},
 	}
 
@@ -186,33 +144,24 @@ func TestPlayer_AssignTeam(t *testing.T) {
 }
 
 func TestPlayer_UnassignTeam(t *testing.T) {
-	type testCase struct {
+	type testCase struct{}
+	testCases := []struct {
 		test        string
 		player      *Player
 		team        *Team
 		expectedErr error
-	}
-	testCases := []testCase{
+	}{
 		{
-			test: "Unassign team to player",
-			player: NewPlayerFromEvents([]event.Event{
-				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
-				&event.TeamAssignedToPlayer{ID: examplePlayerUUID, TeamId: exampleTeamUUID, TeamName: exampleTeamName},
-			}),
-			team: NewTeamFromEvents([]event.Event{
-				&event.TeamCreated{ID: exampleTeamUUID, Name: exampleTeamName},
-			}),
-			expectedErr: nil,
+			"Unassign team to player",
+			NewPlayerFromEvents([]event.Event{playerCreated, teamAssigned}),
+			NewTeamFromEvents([]event.Event{teamCreated}),
+			nil,
 		},
 		{
-			test: "Try to unassigned a team that is not assigned to player",
-			player: NewPlayerFromEvents([]event.Event{
-				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
-			}),
-			team: NewTeamFromEvents([]event.Event{
-				&event.TeamCreated{ID: exampleTeamUUID, Name: exampleTeamName},
-			}),
-			expectedErr: ErrTeamNotAssignedToPlayer,
+			"Try to unassigned a team that is not assigned to player",
+			NewPlayerFromEvents([]event.Event{playerCreated}),
+			NewTeamFromEvents([]event.Event{teamCreated}),
+			ErrTeamNotAssignedToPlayer,
 		},
 	}
 
@@ -226,33 +175,23 @@ func TestPlayer_UnassignTeam(t *testing.T) {
 }
 
 func TestPlayer_GetTeams(t *testing.T) {
-	type testCase struct {
+	testCases := []struct {
 		test      string
 		player    *Player
 		team      *Team
 		teamCount int
-	}
-	testCases := []testCase{
+	}{
 		{
-			test: "No teams assigned",
-			player: NewPlayerFromEvents([]event.Event{
-				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
-			}),
-			team: NewTeamFromEvents([]event.Event{
-				&event.TeamCreated{ID: exampleTeamUUID, Name: exampleTeamName},
-			}),
-			teamCount: 0,
+			"No teams assigned",
+			NewPlayerFromEvents([]event.Event{playerCreated}),
+			NewTeamFromEvents([]event.Event{teamCreated}),
+			0,
 		},
 		{
-			test: "Add player that is already assigned to team",
-			player: NewPlayerFromEvents([]event.Event{
-				&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
-				&event.TeamAssignedToPlayer{ID: examplePlayerUUID, TeamId: exampleTeamUUID, TeamName: exampleTeamName},
-			}),
-			team: NewTeamFromEvents([]event.Event{
-				&event.TeamCreated{ID: exampleTeamUUID, Name: exampleTeamName},
-			}),
-			teamCount: 1,
+			"Add player that is already assigned to team",
+			NewPlayerFromEvents([]event.Event{playerCreated, teamAssigned}),
+			NewTeamFromEvents([]event.Event{teamCreated}),
+			1,
 		},
 	}
 
@@ -275,23 +214,14 @@ func TestPlayer_Events(t *testing.T) {
 		player.Deactivate()
 		player.Activate()
 
-		got := len(player.Events())
-
-		is.Equal(got, 3)
+		is.Equal(len(player.Events()), 3)
 	})
 }
 
 func TestPlayer_Version(t *testing.T) {
 	t.Run("Version is properly updated", func(t *testing.T) {
 		is := is.New(t)
-		p := NewPlayerFromEvents([]event.Event{
-			&event.PlayerCreated{ID: examplePlayerUUID, Name: examplePlayerName},
-			&event.PlayerDeactivated{ID: examplePlayerUUID},
-			&event.PlayerActivated{ID: examplePlayerUUID},
-		})
-
-		got := p.Version()
-
-		is.Equal(got, 3)
+		p := NewPlayerFromEvents([]event.Event{playerCreated, playerDeactivated})
+		is.Equal(p.Version(), 2)
 	})
 }

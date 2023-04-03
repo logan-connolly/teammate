@@ -6,28 +6,20 @@ import (
 	"github.com/matryer/is"
 )
 
+func badRegistrationConfiguration() RegistrationConfiguration {
+	return func(s *RegistrationService) error {
+		return ErrInvalidRegistrationConfig
+	}
+}
+
 func TestNewRegistrationService(t *testing.T) {
-	type testCase struct {
+	testCases := []struct {
 		test        string
 		testConfig  func() RegistrationConfiguration
 		expectedErr error
-	}
-
-	testCases := []testCase{
-		{
-			test:        "With in-memory user repository",
-			testConfig:  WithMemoryUserRepository,
-			expectedErr: nil,
-		},
-		{
-			test: "With bad config",
-			testConfig: func() RegistrationConfiguration {
-				return func(s *RegistrationService) error {
-					return ErrInvalidRegistrationConfig
-				}
-			},
-			expectedErr: ErrInvalidRegistrationConfig,
-		},
+	}{
+		{"With in-memory user repository", WithMemoryUserRepository, nil},
+		{"With bad config", badRegistrationConfiguration, ErrInvalidRegistrationConfig},
 	}
 
 	for _, tc := range testCases {

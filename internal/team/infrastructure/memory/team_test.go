@@ -12,28 +12,29 @@ import (
 )
 
 var (
-	exampleTeamUUID = uuid.MustParse("f55e93f8-c952-11ed-afa1-0242ac120002")
-	anotherTeamUUID = uuid.MustParse("f47ac10b-58cc-0372-8567-0e02b2c3d479")
-	exampleTeamName = "Syracuse"
-	anotherTeamName = "Notre Dame"
+	exampleTeamUUID    = uuid.MustParse("f55e93f8-c952-11ed-afa1-0242ac120002")
+	anotherTeamUUID    = uuid.MustParse("f47ac10b-58cc-0372-8567-0e02b2c3d479")
+	exampleTeamName    = "Syracuse"
+	anotherTeamName    = "Notre Dame"
+	teamCreated        = &event.TeamCreated{ID: exampleTeamUUID, Name: exampleTeamName}
+	anotherTeamCreated = &event.TeamCreated{ID: anotherTeamUUID, Name: anotherTeamName}
+	playerAssigned     = &event.PlayerAssignedToTeam{ID: exampleTeamUUID, PlayerId: examplePlayerUUID, PlayerName: examplePlayerName}
 )
 
 func TestMemoryTeamRepository_Get(t *testing.T) {
-	type testCase struct {
+	testCases := []struct {
 		test        string
 		group       *entity.Group
 		expectedErr error
-	}
-
-	testCases := []testCase{
+	}{
 		{
-			test:        "No team found with this group",
-			group:       &entity.Group{ID: anotherTeamUUID, Name: anotherTeamName},
-			expectedErr: repository.ErrTeamNotFound,
+			"No team found with this group",
+			&entity.Group{ID: anotherTeamUUID, Name: anotherTeamName},
+			repository.ErrTeamNotFound,
 		}, {
-			test:        "Team found",
-			group:       &entity.Group{ID: exampleTeamUUID, Name: exampleTeamName},
-			expectedErr: nil,
+			"Team found",
+			&entity.Group{ID: exampleTeamUUID, Name: exampleTeamName},
+			nil,
 		},
 	}
 
@@ -53,43 +54,16 @@ func TestMemoryTeamRepository_Get(t *testing.T) {
 }
 
 func TestMemoryTeamRepository_GetPlayers(t *testing.T) {
-	type testCase struct {
+	testCases := []struct {
 		test        string
 		teamId      uuid.UUID
 		playerCount int
 		events      []event.Event
 		expectedErr error
-	}
-
-	testCases := []testCase{
-		{
-			test:        "Team not found",
-			teamId:      anotherTeamUUID,
-			playerCount: 0,
-			events: []event.Event{
-				&event.TeamCreated{ID: anotherTeamUUID, Name: anotherTeamName},
-			},
-			expectedErr: repository.ErrTeamNotFound,
-		},
-		{
-			test:        "No player is assigned",
-			teamId:      exampleTeamUUID,
-			playerCount: 0,
-			events: []event.Event{
-				&event.TeamCreated{ID: exampleTeamUUID, Name: exampleTeamName},
-			},
-			expectedErr: nil,
-		},
-		{
-			test:        "One player is assigned",
-			teamId:      exampleTeamUUID,
-			playerCount: 1,
-			events: []event.Event{
-				&event.TeamCreated{ID: exampleTeamUUID, Name: exampleTeamName},
-				&event.PlayerAssignedToTeam{ID: exampleTeamUUID, PlayerId: examplePlayerUUID, PlayerName: examplePlayerName},
-			},
-			expectedErr: nil,
-		},
+	}{
+		{"Team not found", anotherTeamUUID, 0, []event.Event{anotherTeamCreated}, repository.ErrTeamNotFound},
+		{"No player is assigned", exampleTeamUUID, 0, []event.Event{teamCreated}, nil},
+		{"One player is assigned", exampleTeamUUID, 1, []event.Event{teamCreated, playerAssigned}, nil},
 	}
 
 	for _, tc := range testCases {
@@ -107,26 +81,14 @@ func TestMemoryTeamRepository_GetPlayers(t *testing.T) {
 }
 
 func TestMemoryTeamRepository_Add(t *testing.T) {
-	type testCase struct {
+	testCases := []struct {
 		test        string
 		id          uuid.UUID
 		name        string
 		expectedErr error
-	}
-
-	testCases := []testCase{
-		{
-			test:        "Successfully add a team",
-			id:          anotherTeamUUID,
-			name:        anotherTeamName,
-			expectedErr: nil,
-		},
-		{
-			test:        "Team already exists error",
-			id:          exampleTeamUUID,
-			name:        exampleTeamName,
-			expectedErr: repository.ErrTeamAlreadyExists,
-		},
+	}{
+		{"Successfully add a team", anotherTeamUUID, anotherTeamName, nil},
+		{"Team already exists error", exampleTeamUUID, exampleTeamName, repository.ErrTeamAlreadyExists},
 	}
 
 	for _, tc := range testCases {
@@ -146,32 +108,15 @@ func TestMemoryTeamRepository_Add(t *testing.T) {
 }
 
 func TestMemoryTeamRepository_Update(t *testing.T) {
-	type testCase struct {
+	testCases := []struct {
 		test        string
 		register    bool
 		deactivate  bool
 		expectedErr error
-	}
-
-	testCases := []testCase{
-		{
-			test:        "Update team",
-			register:    true,
-			deactivate:  true,
-			expectedErr: nil,
-		},
-		{
-			test:        "Team has no changes",
-			register:    true,
-			deactivate:  false,
-			expectedErr: repository.ErrTeamHasNoUpdates,
-		},
-		{
-			test:        "Team not found",
-			register:    false,
-			deactivate:  true,
-			expectedErr: repository.ErrTeamNotFound,
-		},
+	}{
+		{"Update team", true, true, nil},
+		{"Team has no changes", true, false, repository.ErrTeamHasNoUpdates},
+		{"Team not found", false, true, repository.ErrTeamNotFound},
 	}
 
 	for _, tc := range testCases {
