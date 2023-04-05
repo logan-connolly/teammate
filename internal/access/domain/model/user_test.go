@@ -26,8 +26,8 @@ func TestUser_NewUser(t *testing.T) {
 		email       string
 		expectedErr error
 	}{
-		{"Empty name validation", &entity.Person{ID: exampleUUID, Name: ""}, exampleEmail, ErrUserNameIsEmpty},
-		{"Empty email validation", &entity.Person{ID: exampleUUID, Name: exampleName}, "", ErrUserEmailIsEmpty},
+		{"Empty name validation", &entity.Person{ID: exampleUUID, Name: ""}, exampleEmail, ErrInputIsEmpty},
+		{"Empty email validation", &entity.Person{ID: exampleUUID, Name: exampleName}, "", ErrInputIsEmpty},
 		{"Valid email and name", &entity.Person{ID: exampleUUID, Name: exampleName}, exampleEmail, nil},
 	}
 

@@ -9,8 +9,7 @@ import (
 )
 
 var (
-	ErrUserEmailIsEmpty           = errors.New("model: email must be provided")
-	ErrUserNameIsEmpty            = errors.New("model: name must be provided")
+	ErrInputIsEmpty               = errors.New("model: non-empty value must be provided")
 	ErrUserNameAlreadySetToValue  = errors.New("model: update name requires new name")
 	ErrUserEmailAlreadySetToValue = errors.New("model: update email requires new email")
 	ErrUserAlreadyActivated       = errors.New("model: user is already activated")
@@ -31,12 +30,8 @@ type User struct {
 func NewUser(p *entity.Person, email string) (*User, error) {
 	user := &User{}
 
-	if p.Name == "" {
-		return user, ErrUserNameIsEmpty
-	}
-
-	if email == "" {
-		return user, ErrUserEmailIsEmpty
+	if p.Name == "" || email == "" {
+		return user, ErrInputIsEmpty
 	}
 
 	user.register(&event.UserRegistered{
