@@ -9,11 +9,8 @@ import (
 )
 
 var (
-	ErrInputIsEmpty               = errors.New("model: non-empty value must be provided")
-	ErrUserNameAlreadySetToValue  = errors.New("model: update name requires new name")
-	ErrUserEmailAlreadySetToValue = errors.New("model: update email requires new email")
-	ErrUserAlreadyActivated       = errors.New("model: user is already activated")
-	ErrUserAlreadyDeactivated     = errors.New("model: user is already inactive")
+	ErrInputIsEmpty     = errors.New("model: non-empty value must be provided")
+	ErrUserUpdateFailed = errors.New("model: user update failed")
 )
 
 // User is a aggregate that combines all entities needed to represent a user.
@@ -78,7 +75,7 @@ func (u *User) IsActivated() bool {
 // UpdateName updates the user's name.
 func (u *User) UpdateName(name string) error {
 	if u.person.Name == name {
-		return ErrUserNameAlreadySetToValue
+		return ErrUserUpdateFailed
 	}
 
 	u.register(&event.UserNameChanged{
@@ -92,7 +89,7 @@ func (u *User) UpdateName(name string) error {
 // UpdateEmail updates the user's email.
 func (u *User) UpdateEmail(email string) error {
 	if u.email == email {
-		return ErrUserEmailAlreadySetToValue
+		return ErrUserUpdateFailed
 	}
 
 	u.register(&event.UserEmailChanged{
@@ -106,7 +103,7 @@ func (u *User) UpdateEmail(email string) error {
 // Activate activates user.
 func (u *User) Activate() error {
 	if u.activated {
-		return ErrUserAlreadyActivated
+		return ErrUserUpdateFailed
 	}
 
 	u.register(&event.UserActivated{
@@ -119,7 +116,7 @@ func (u *User) Activate() error {
 // Deactivate deactivates user.
 func (u *User) Deactivate() error {
 	if !u.activated {
-		return ErrUserAlreadyDeactivated
+		return ErrUserUpdateFailed
 	}
 
 	u.register(&event.UserDeactivated{

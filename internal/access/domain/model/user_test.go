@@ -79,7 +79,7 @@ func TestUser_UpdateName(t *testing.T) {
 			"Update name with same name",
 			NewUserFromEvents([]event.Event{userRegistered, userDeactivated}),
 			exampleName,
-			ErrUserNameAlreadySetToValue,
+			ErrUserUpdateFailed,
 		},
 	}
 
@@ -109,7 +109,7 @@ func TestUser_UpdateEmail(t *testing.T) {
 			"Update email with same email",
 			NewUserFromEvents([]event.Event{userRegistered, userDeactivated}),
 			exampleEmail,
-			ErrUserEmailAlreadySetToValue,
+			ErrUserUpdateFailed,
 		},
 	}
 
@@ -131,7 +131,7 @@ func TestUser_Activate(t *testing.T) {
 		{
 			"Activate active user",
 			NewUserFromEvents([]event.Event{userRegistered}),
-			ErrUserAlreadyActivated,
+			ErrUserUpdateFailed,
 		},
 		{
 			"Activate deactivated user",
@@ -164,7 +164,7 @@ func TestUser_Deactivate(t *testing.T) {
 		{
 			"Deactivate deactivated user",
 			NewUserFromEvents([]event.Event{userRegistered, userDeactivated}),
-			ErrUserAlreadyDeactivated,
+			ErrUserUpdateFailed,
 		},
 	}
 
