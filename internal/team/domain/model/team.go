@@ -9,11 +9,8 @@ import (
 )
 
 var (
-	ErrInvalidGroup            = errors.New("model: team has to be a valid group")
-	ErrTeamAlreadyActivated    = errors.New("model: team is already activated")
-	ErrTeamAlreadyDeactivated  = errors.New("model: team is already inactive")
-	ErrPlayerAlreadyAssigned   = errors.New("model: player already assigned to team")
-	ErrPlayerNotAssignedToTeam = errors.New("model: player not assigned to team")
+	ErrInvalidGroup     = errors.New("model: team has to be a valid group")
+	ErrTeamUpdateFailed = errors.New("model: team update failed")
 )
 
 // TeamMapping stores the mapping of registered team ids to group entities.
@@ -82,7 +79,7 @@ func (t *Team) IsActivated() bool {
 // Activate activates team.
 func (t *Team) Activate() error {
 	if t.activated {
-		return ErrTeamAlreadyActivated
+		return ErrTeamUpdateFailed
 	}
 
 	t.register(&event.TeamActivated{
@@ -95,7 +92,7 @@ func (t *Team) Activate() error {
 // Deactivate deactivates team.
 func (t *Team) Deactivate() error {
 	if !t.activated {
-		return ErrTeamAlreadyDeactivated
+		return ErrTeamUpdateFailed
 	}
 
 	t.register(&event.TeamDeactivated{
@@ -108,7 +105,7 @@ func (t *Team) Deactivate() error {
 // AssignPlayer assigns player to team.
 func (t *Team) AssignPlayer(p *Player) error {
 	if _, ok := t.players[p.person.ID]; ok {
-		return ErrPlayerAlreadyAssigned
+		return ErrTeamUpdateFailed
 	}
 
 	t.register(&event.PlayerAssignedToTeam{
@@ -123,7 +120,7 @@ func (t *Team) AssignPlayer(p *Player) error {
 // UassignPlayer assigns player from team.
 func (t *Team) UnassignPlayer(p *Player) error {
 	if _, ok := t.players[p.person.ID]; !ok {
-		return ErrPlayerNotAssignedToTeam
+		return ErrTeamUpdateFailed
 	}
 
 	t.register(&event.PlayerUnassignedFromTeam{

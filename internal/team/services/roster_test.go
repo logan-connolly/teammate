@@ -54,8 +54,8 @@ func TestRosterService_AssignPlayerToTeam(t *testing.T) {
 	}{
 		{"Team not found", anotherGroup, examplePerson, false, false, repository.ErrTeamNotFound},
 		{"Player not found", exampleGroup, anotherPerson, false, false, repository.ErrPlayerNotFound},
-		{"Team already assigned to player", exampleGroup, examplePerson, false, true, model.ErrTeamAlreadyAssigned},
-		{"Player already assigned to Team", exampleGroup, examplePerson, true, false, model.ErrPlayerAlreadyAssigned},
+		{"Team already assigned to player", exampleGroup, examplePerson, false, true, model.ErrPlayerUpdateFailed},
+		{"Player already assigned to Team", exampleGroup, examplePerson, true, false, model.ErrTeamUpdateFailed},
 		{"Player assigned to team", exampleGroup, examplePerson, false, false, nil},
 	}
 
@@ -100,8 +100,8 @@ func TestRosterService_UnassignPlayerToTeam(t *testing.T) {
 	}{
 		{"Team not found", anotherGroup, examplePerson, false, false, repository.ErrTeamNotFound},
 		{"Player not found", exampleGroup, anotherPerson, false, false, repository.ErrPlayerNotFound},
-		{"Team not assigned to player", exampleGroup, examplePerson, true, false, model.ErrTeamNotAssignedToPlayer},
-		{"Player not assigned to team", exampleGroup, examplePerson, false, true, model.ErrPlayerNotAssignedToTeam},
+		{"Team not assigned to player", exampleGroup, examplePerson, true, false, model.ErrPlayerUpdateFailed},
+		{"Player not assigned to team", exampleGroup, examplePerson, false, true, model.ErrTeamUpdateFailed},
 		{"Player unassigned from team", exampleGroup, examplePerson, true, true, nil},
 	}
 

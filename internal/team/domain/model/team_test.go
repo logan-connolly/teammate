@@ -66,7 +66,7 @@ func TestTeam_Activate(t *testing.T) {
 		{
 			"Activate active team",
 			NewTeamFromEvents([]event.Event{teamCreated}),
-			ErrTeamAlreadyActivated,
+			ErrTeamUpdateFailed,
 		},
 		{
 			"Activate deactivated team",
@@ -99,7 +99,7 @@ func TestTeam_Deactivate(t *testing.T) {
 		{
 			"Deactivate deactivated team",
 			NewTeamFromEvents([]event.Event{teamCreated, teamDeactivated}),
-			ErrTeamAlreadyDeactivated,
+			ErrTeamUpdateFailed,
 		},
 	}
 
@@ -130,7 +130,7 @@ func TestTeam_AssignPlayer(t *testing.T) {
 			"Add player that is already assigned to team",
 			NewPlayerFromEvents([]event.Event{playerCreated}),
 			NewTeamFromEvents([]event.Event{teamCreated, playerAssigned}),
-			ErrPlayerAlreadyAssigned,
+			ErrTeamUpdateFailed,
 		},
 	}
 
@@ -160,7 +160,7 @@ func TestTeam_Unassignplayer(t *testing.T) {
 			"Try to unassigned a player that is not assigned to team",
 			NewPlayerFromEvents([]event.Event{playerCreated}),
 			NewTeamFromEvents([]event.Event{teamCreated}),
-			ErrPlayerNotAssignedToTeam,
+			ErrTeamUpdateFailed,
 		},
 	}
 
