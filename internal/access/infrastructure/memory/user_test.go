@@ -7,7 +7,6 @@ import (
 	"github.com/logan-connolly/teammate/internal/access/domain/event"
 	"github.com/logan-connolly/teammate/internal/access/domain/model"
 	"github.com/logan-connolly/teammate/internal/access/domain/repository"
-	"github.com/logan-connolly/teammate/internal/entity"
 	"github.com/matryer/is"
 )
 
@@ -20,22 +19,22 @@ var (
 	anotherEmail = "gibbs@teammate.com"
 )
 
-func TestMemoryAccessRepository_Get(t *testing.T) {
+func TestMemoryAccessRepository_GetByEmail(t *testing.T) {
 	type testCase struct {
 		test        string
-		person      *entity.Person
+		email       string
 		expectedErr error
 	}
 
 	testCases := []testCase{
 		{
 			test:        "No user with this entity",
-			person:      &entity.Person{ID: anotherUUID, Name: anotherName},
+			email:       anotherEmail,
 			expectedErr: repository.ErrUserNotFound,
 		},
 		{
 			test:        "User found",
-			person:      &entity.Person{ID: exampleUUID, Name: exampleName},
+			email:       exampleEmail,
 			expectedErr: nil,
 		},
 	}
@@ -44,11 +43,11 @@ func TestMemoryAccessRepository_Get(t *testing.T) {
 		t.Run(tc.test, func(t *testing.T) {
 			is := is.New(t)
 			repo := NewMemoryUserRepository()
-			repo.users[exampleUUID] = []event.Event{
+			repo.users[exampleEmail] = []event.Event{
 				&event.UserRegistered{ID: exampleUUID, Name: exampleName, Email: exampleEmail},
 			}
 
-			_, err := repo.Get(tc.person)
+			_, err := repo.GetByEmail(tc.email)
 
 			is.Equal(err, tc.expectedErr)
 		})
@@ -88,7 +87,7 @@ func TestMemoryAccessRepository_Add(t *testing.T) {
 			u := model.NewUserFromEvents([]event.Event{
 				&event.UserRegistered{ID: tc.id, Name: tc.name, Email: tc.email},
 			})
-			r.users[exampleUUID] = u.Events()
+			r.users[exampleEmail] = u.Events()
 
 			err := r.Add(u)
 
@@ -134,7 +133,7 @@ func TestMemoryAccessRepository_Update(t *testing.T) {
 				&event.UserRegistered{ID: exampleUUID, Name: exampleName, Email: exampleEmail},
 			})
 			if tc.register {
-				r.users[exampleUUID] = u.Events()
+				r.users[exampleEmail] = u.Events()
 			}
 			if tc.deactivate {
 				u.Deactivate()

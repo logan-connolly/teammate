@@ -3,30 +3,27 @@ package memory
 import (
 	"sync"
 
-	"github.com/google/uuid"
-
 	"github.com/logan-connolly/teammate/internal/access/domain/event"
 	"github.com/logan-connolly/teammate/internal/access/domain/model"
 	"github.com/logan-connolly/teammate/internal/access/domain/repository"
-	"github.com/logan-connolly/teammate/internal/entity"
 )
 
 // MemoryUserRepository is an in-memory user repository.
 type MemoryUserRepository struct {
-	users map[uuid.UUID][]event.Event
+	users map[string][]event.Event
 	sync.Mutex
 }
 
 // NewMemoryUserRepository intializes an in-memory user repository.
 func NewMemoryUserRepository() *MemoryUserRepository {
 	return &MemoryUserRepository{
-		users: make(map[uuid.UUID][]event.Event),
+		users: make(map[string][]event.Event),
 	}
 }
 
 // Get retrieves a user by ID.
-func (r *MemoryUserRepository) Get(p *entity.Person) (*model.User, error) {
-	if events, ok := r.users[p.ID]; ok {
+func (r *MemoryUserRepository) GetByEmail(email string) (*model.User, error) {
+	if events, ok := r.users[email]; ok {
 		return model.NewUserFromEvents(events), nil
 	}
 
@@ -35,12 +32,12 @@ func (r *MemoryUserRepository) Get(p *entity.Person) (*model.User, error) {
 
 // Add stores a new user in the repository.
 func (r *MemoryUserRepository) Add(p *model.User) error {
-	if _, ok := r.users[p.GetID()]; ok {
+	if _, ok := r.users[p.GetEmail()]; ok {
 		return repository.ErrUserAlreadyExists
 	}
 
 	r.Lock()
-	r.users[p.GetID()] = p.Events()
+	r.users[p.GetEmail()] = p.Events()
 	defer r.Unlock()
 
 	return nil
@@ -48,7 +45,7 @@ func (r *MemoryUserRepository) Add(p *model.User) error {
 
 // Update appends changes to user in the repository.
 func (r *MemoryUserRepository) Update(p *model.User) error {
-	storedEvents, ok := r.users[p.GetID()]
+	storedEvents, ok := r.users[p.GetEmail()]
 	if !ok {
 		return repository.ErrUserNotFound
 	}
@@ -59,7 +56,7 @@ func (r *MemoryUserRepository) Update(p *model.User) error {
 	}
 
 	r.Lock()
-	r.users[p.GetID()] = append(storedEvents, newEvents...)
+	r.users[p.GetEmail()] = append(storedEvents, newEvents...)
 	defer r.Unlock()
 
 	return nil

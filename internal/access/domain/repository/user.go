@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/logan-connolly/teammate/internal/access/domain/model"
-	"github.com/logan-connolly/teammate/internal/entity"
 )
 
 var (
@@ -15,7 +14,7 @@ var (
 
 // UserRepository defines the interface for the user repository.
 type UserRepository interface {
-	Get(*entity.Person) (*model.User, error)
+	GetByEmail(string) (*model.User, error)
 	Add(*model.User) error
 	Update(*model.User) error
 }
