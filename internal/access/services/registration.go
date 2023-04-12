@@ -3,8 +3,11 @@ package services
 import (
 	"errors"
 
+	"github.com/google/uuid"
+	"github.com/logan-connolly/teammate/internal/access/domain/model"
 	"github.com/logan-connolly/teammate/internal/access/domain/repository"
 	"github.com/logan-connolly/teammate/internal/access/infrastructure/memory"
+	"github.com/logan-connolly/teammate/internal/entity"
 )
 
 var ErrInvalidRegistrationConfig = errors.New("services: invalid registration configuration")
@@ -28,6 +31,20 @@ func NewRegistrationService(cfgs ...RegistrationConfiguration) (*RegistrationSer
 		}
 	}
 	return s, nil
+}
+
+// RegisterUser registers a user if the email is not already registered.
+func (s *RegistrationService) RegisterUser(name, email string) error {
+	u, err := model.NewUser(&entity.Person{ID: uuid.New(), Name: name}, email)
+	if err != nil {
+		return err
+	}
+
+	if err = s.users.Add(u); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // WithUserRepository applies a given user repository to the service.
