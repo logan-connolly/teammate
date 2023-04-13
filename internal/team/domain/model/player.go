@@ -13,14 +13,11 @@ var (
 	ErrPlayerUpdateFailed = errors.New("model: player update failed")
 )
 
-// TeamMapping stores the mapping of registered team ids to group entities.
-type TeamMapping map[uuid.UUID]*entity.Group
-
 // Player is a aggregate that combines all entities needed to represent a player.
 type Player struct {
 	person    *entity.Person
 	activated bool
-	teams     TeamMapping
+	teams     map[uuid.UUID]*entity.Group
 
 	changes []event.Event
 	version int
