@@ -1,7 +1,7 @@
-package team
+package application
 
 import (
-	"github.com/logan-connolly/teammate/internal/team/services"
+	"github.com/logan-connolly/teammate/internal/team/application/services"
 )
 
 var memoryConfigs = []services.RosterConfiguration{

@@ -1,9 +1,9 @@
-package team
+package application
 
 import (
 	"testing"
 
-	"github.com/logan-connolly/teammate/internal/team/services"
+	"github.com/logan-connolly/teammate/internal/team/application/services"
 	"github.com/matryer/is"
 )
 
