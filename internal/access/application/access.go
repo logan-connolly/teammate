@@ -1,6 +1,6 @@
 package access
 
-import "github.com/logan-connolly/teammate/internal/access/services"
+import "github.com/logan-connolly/teammate/internal/access/application/services"
 
 var memoryConfigs = []services.RegistrationConfiguration{
 	services.WithMemoryUserRepository(),
