@@ -22,14 +22,14 @@ func TestMemoryApplication(t *testing.T) {
 
 	t.Run("Init failure due to bad registration service config", func(t *testing.T) {
 		is := is.New(t)
-		originalMemoryConfigs := memoryConfigs
-		memoryConfigs = []services.RegistrationConfiguration{withInvalidMemoryConfig()}
+		originalConfigs := services.RegistrationConfigs
+		services.RegistrationConfigs = []services.RegistrationConfiguration{withInvalidMemoryConfig()}
 
 		_, err := NewAccessApplication()
 
 		is.Equal(err, services.ErrInvalidRegistrationConfig)
 
-		// clean up memoryConfigs
-		memoryConfigs = originalMemoryConfigs
+		// clean up configs
+		services.RegistrationConfigs = originalConfigs
 	})
 }

@@ -17,29 +17,29 @@ const (
 	otherEmail = "janet@teammate.com"
 )
 
-func badRegistrationConfiguration() RegistrationConfiguration {
-	return func(s *RegistrationService) error {
-		return ErrInvalidRegistrationConfig
-	}
-}
-
 func TestNewRegistrationService(t *testing.T) {
-	testCases := []struct {
-		test        string
-		testConfig  func() RegistrationConfiguration
-		expectedErr error
-	}{
-		{"With in-memory user repository", WithMemoryUserRepository, nil},
-		{"With bad config", badRegistrationConfiguration, ErrInvalidRegistrationConfig},
-	}
+	t.Run("Create service with defaults", func(t *testing.T) {
+		is := is.New(t)
+		_, err := NewRegistrationService()
+		is.NoErr(err)
+	})
 
-	for _, tc := range testCases {
-		t.Run(tc.test, func(t *testing.T) {
-			is := is.New(t)
-			_, err := NewRegistrationService(tc.testConfig())
-			is.Equal(err, tc.expectedErr)
-		})
-	}
+	t.Run("Create service with bad config", func(t *testing.T) {
+		is := is.New(t)
+		withInvalidConfig := func() RegistrationConfiguration {
+			return func(s *RegistrationService) error {
+				return ErrInvalidRegistrationConfig
+			}
+		}
+		originalConfigs := RegistrationConfigs
+		RegistrationConfigs = []RegistrationConfiguration{withInvalidConfig()}
+
+		_, err := NewRegistrationService()
+
+		is.Equal(err, ErrInvalidRegistrationConfig)
+		// clean up configs
+		RegistrationConfigs = originalConfigs
+	})
 }
 
 func TestRegistrationService_RegisterUser(t *testing.T) {
@@ -58,7 +58,7 @@ func TestRegistrationService_RegisterUser(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.test, func(t *testing.T) {
 			is := is.New(t)
-			s, _ := NewRegistrationService(WithMemoryUserRepository())
+			s, _ := NewRegistrationService()
 			u, _ := model.NewUser(&entity.Person{ID: uuid.New(), Name: name}, email)
 			s.users.Add(u)
 

@@ -12,8 +12,21 @@ import (
 
 var ErrInvalidRegistrationConfig = errors.New("services: invalid registration configuration")
 
+// RegistrationConfigs defines the configurations to intialize the service with.
+var RegistrationConfigs = []RegistrationConfiguration{
+	WithMemoryRepositories(),
+}
+
 // RegistrationConfiguration is a function that modifies the service.
 type RegistrationConfiguration func(s *RegistrationService) error
+
+// WithMemoryRepositories attaches in memory repostories to service.
+func WithMemoryRepositories() RegistrationConfiguration {
+	return func(s *RegistrationService) error {
+		s.users = memory.NewMemoryUserRepository()
+		return nil
+	}
+}
 
 // RegistrationService is a implementation of the RegistrationService.
 type RegistrationService struct {
@@ -21,10 +34,10 @@ type RegistrationService struct {
 }
 
 // NewRegistrationService accepts configs and returns a new service.
-func NewRegistrationService(cfgs ...RegistrationConfiguration) (*RegistrationService, error) {
+func NewRegistrationService() (*RegistrationService, error) {
 	s := &RegistrationService{}
 
-	for _, cfg := range cfgs {
+	for _, cfg := range RegistrationConfigs {
 		err := cfg(s)
 		if err != nil {
 			return nil, err
@@ -45,18 +58,4 @@ func (s *RegistrationService) RegisterUser(name, email string) error {
 	}
 
 	return nil
-}
-
-// WithUserRepository applies a given user repository to the service.
-func WithUserRepository(r repository.UserRepository) RegistrationConfiguration {
-	return func(s *RegistrationService) error {
-		s.users = r
-		return nil
-	}
-}
-
-// WithMemoryUserRepository applies a memory user repository to the service.
-func WithMemoryUserRepository() RegistrationConfiguration {
-	r := memory.NewMemoryUserRepository()
-	return WithUserRepository(r)
 }
