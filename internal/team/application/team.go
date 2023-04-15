@@ -9,17 +9,19 @@ var memoryConfigs = []services.RosterConfiguration{
 	services.WithMemoryTeamRepository(),
 }
 
-type Application struct {
+// TeamApplication holds all services related to team management.
+type TeamApplication struct {
 	rosterService services.RosterService
 }
 
-func NewMemoryApplication() (*Application, error) {
+// NewTeamApplication intitializes the team application.
+func NewTeamApplication() (*TeamApplication, error) {
 	rs, err := services.NewRosterService(memoryConfigs...)
 	if err != nil {
-		return &Application{}, services.ErrInvalidRosterConfig
+		return &TeamApplication{}, services.ErrInvalidRosterConfig
 	}
 
-	return &Application{
+	return &TeamApplication{
 		rosterService: *rs,
 	}, nil
 }

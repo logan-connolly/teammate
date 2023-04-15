@@ -13,10 +13,10 @@ func withInvalidMemoryConfig() services.RosterConfiguration {
 	}
 }
 
-func TestMemoryApplication(t *testing.T) {
+func TestTeamApplication(t *testing.T) {
 	t.Run("Init team app", func(t *testing.T) {
 		is := is.New(t)
-		_, err := NewMemoryApplication()
+		_, err := NewTeamApplication()
 		is.NoErr(err)
 	})
 
@@ -25,7 +25,7 @@ func TestMemoryApplication(t *testing.T) {
 		originalMemoryConfigs := memoryConfigs
 		memoryConfigs = []services.RosterConfiguration{withInvalidMemoryConfig()}
 
-		_, err := NewMemoryApplication()
+		_, err := NewTeamApplication()
 
 		is.Equal(err, services.ErrInvalidRosterConfig)
 
