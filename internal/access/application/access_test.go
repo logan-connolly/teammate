@@ -16,7 +16,7 @@ func withInvalidMemoryConfig() services.RegistrationConfiguration {
 func TestMemoryApplication(t *testing.T) {
 	t.Run("Init access app", func(t *testing.T) {
 		is := is.New(t)
-		_, err := NewMemoryApplication()
+		_, err := NewAccessApplication()
 		is.NoErr(err)
 	})
 
@@ -25,7 +25,7 @@ func TestMemoryApplication(t *testing.T) {
 		originalMemoryConfigs := memoryConfigs
 		memoryConfigs = []services.RegistrationConfiguration{withInvalidMemoryConfig()}
 
-		_, err := NewMemoryApplication()
+		_, err := NewAccessApplication()
 
 		is.Equal(err, services.ErrInvalidRegistrationConfig)
 

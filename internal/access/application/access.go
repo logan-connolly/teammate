@@ -6,17 +6,17 @@ var memoryConfigs = []services.RegistrationConfiguration{
 	services.WithMemoryUserRepository(),
 }
 
-type Application struct {
+// AccessApplication holds all services related to access management.
+type AccessApplication struct {
 	registrationService services.RegistrationService
 }
 
-func NewMemoryApplication() (*Application, error) {
+// NewAccessApplication intitializes the access application.
+func NewAccessApplication() (*AccessApplication, error) {
 	rs, err := services.NewRegistrationService(memoryConfigs...)
 	if err != nil {
-		return &Application{}, services.ErrInvalidRegistrationConfig
+		return &AccessApplication{}, services.ErrInvalidRegistrationConfig
 	}
 
-	return &Application{
-		registrationService: *rs,
-	}, nil
+	return &AccessApplication{registrationService: *rs}, nil
 }
