@@ -18,3 +18,8 @@ func NewTeamApplication() (*TeamApplication, error) {
 
 	return &TeamApplication{rosterService: rs}, nil
 }
+
+// GetRosterService returns the roster service from the app.
+func (a *TeamApplication) GetRosterService() *services.RosterService {
+	return a.rosterService
+}
