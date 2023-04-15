@@ -31,14 +31,14 @@ func TestNewRosterService(t *testing.T) {
 				return ErrInvalidRosterConfig
 			}
 		}
-		originalServiceConfigs := ServiceConfigs
-		ServiceConfigs = []RosterConfiguration{withInvalidConfig()}
+		originalConfigs := RosterConfigs
+		RosterConfigs = []RosterConfiguration{withInvalidConfig()}
 
 		_, err := NewRosterService()
 
 		is.Equal(err, ErrInvalidRosterConfig)
-		// clean up ServiceConfigs
-		ServiceConfigs = originalServiceConfigs
+		// clean up configs
+		RosterConfigs = originalConfigs
 	})
 }
 

@@ -29,14 +29,14 @@ func TestTeamApplication(t *testing.T) {
 
 	t.Run("Init failure due to bad roster service config", func(t *testing.T) {
 		is := is.New(t)
-		originalServiceConfigs := services.ServiceConfigs
-		services.ServiceConfigs = []services.RosterConfiguration{withInvalidConfig()}
+		originalConfigs := services.RosterConfigs
+		services.RosterConfigs = []services.RosterConfiguration{withInvalidConfig()}
 
 		_, err := NewTeamApplication()
 
 		is.Equal(err, services.ErrInvalidRosterConfig)
-		// clean up memoryConfigs
-		services.ServiceConfigs = originalServiceConfigs
+		// clean up configs
+		services.RosterConfigs = originalConfigs
 	})
 
 	t.Run("Roster service workflow", func(t *testing.T) {

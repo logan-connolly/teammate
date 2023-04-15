@@ -11,8 +11,8 @@ import (
 
 var ErrInvalidRosterConfig = errors.New("services: invalid roster configuration")
 
-// ServiceConfigs defines the configurations to intialize the service with.
-var ServiceConfigs = []RosterConfiguration{
+// RosterConfigs defines the configurations to intialize the service with.
+var RosterConfigs = []RosterConfiguration{
 	WithMemoryRepositories(),
 }
 
@@ -38,7 +38,7 @@ type RosterService struct {
 func NewRosterService() (*RosterService, error) {
 	s := &RosterService{}
 
-	for _, cfg := range ServiceConfigs {
+	for _, cfg := range RosterConfigs {
 		err := cfg(s)
 		if err != nil {
 			return nil, err
