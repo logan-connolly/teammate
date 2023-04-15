@@ -4,7 +4,7 @@ import "github.com/logan-connolly/teammate/internal/access/application/services"
 
 // AccessApplication holds all services related to access management.
 type AccessApplication struct {
-	registrationService services.RegistrationService
+	registrationService *services.RegistrationService
 }
 
 // NewAccessApplication intitializes the access application.
@@ -14,5 +14,5 @@ func NewAccessApplication() (*AccessApplication, error) {
 		return &AccessApplication{}, services.ErrInvalidRegistrationConfig
 	}
 
-	return &AccessApplication{registrationService: *rs}, nil
+	return &AccessApplication{registrationService: rs}, nil
 }
