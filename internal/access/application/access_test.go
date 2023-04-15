@@ -7,6 +7,11 @@ import (
 	"github.com/matryer/is"
 )
 
+var (
+	exampleName  = "John"
+	exampleEmail = "john@teammate.com"
+)
+
 func withInvalidMemoryConfig() services.RegistrationConfiguration {
 	return func(s *services.RegistrationService) error {
 		return services.ErrInvalidRegistrationConfig
@@ -31,5 +36,14 @@ func TestMemoryApplication(t *testing.T) {
 
 		// clean up configs
 		services.RegistrationConfigs = originalConfigs
+	})
+
+	t.Run("Registration service workflow", func(t *testing.T) {
+		is := is.New(t)
+		aa, err := NewAccessApplication()
+		rs := aa.GetRegistrationService()
+
+		err = rs.RegisterUser(exampleName, exampleEmail)
+		is.NoErr(err)
 	})
 }

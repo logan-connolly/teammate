@@ -16,3 +16,8 @@ func NewAccessApplication() (*AccessApplication, error) {
 
 	return &AccessApplication{registrationService: rs}, nil
 }
+
+// GetRosterService returns the roster service from the app.
+func (a *AccessApplication) GetRegistrationService() *services.RegistrationService {
+	return a.registrationService
+}
