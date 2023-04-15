@@ -48,7 +48,7 @@ func TestRosterService_AddPlayer(t *testing.T) {
 		person      *entity.Person
 		expectedErr error
 	}{
-		{"Player name required", &entity.Person{ID: anotherPerson.ID, Name: ""}, nil},
+		{"Player name required", &entity.Person{ID: anotherPerson.ID, Name: ""}, model.ErrInvalidPerson},
 		{"Player already exists", examplePerson, repository.ErrPlayerAlreadyExists},
 		{"Player successfully added", anotherPerson, nil},
 	}
@@ -72,7 +72,7 @@ func TestRosterService_AddTeam(t *testing.T) {
 		group       *entity.Group
 		expectedErr error
 	}{
-		{"Team name required", &entity.Group{ID: anotherGroup.ID, Name: ""}, nil},
+		{"Team name required", &entity.Group{ID: anotherGroup.ID, Name: ""}, model.ErrInvalidGroup},
 		{"Team already exists", exampleGroup, repository.ErrTeamAlreadyExists},
 		{"Team successfully added", anotherGroup, nil},
 	}
