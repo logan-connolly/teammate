@@ -42,6 +42,54 @@ func TestNewRosterService(t *testing.T) {
 	})
 }
 
+func TestRosterService_AddPlayer(t *testing.T) {
+	testCases := []struct {
+		test        string
+		person      *entity.Person
+		expectedErr error
+	}{
+		{"Player name required", &entity.Person{ID: anotherPerson.ID, Name: ""}, nil},
+		{"Player already exists", examplePerson, repository.ErrPlayerAlreadyExists},
+		{"Player successfully added", anotherPerson, nil},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.test, func(t *testing.T) {
+			is := is.New(t)
+			s, _ := NewRosterService()
+			_ = s.AddPlayer(examplePerson)
+
+			err := s.AddPlayer(tc.person)
+
+			is.Equal(err, tc.expectedErr)
+		})
+	}
+}
+
+func TestRosterService_AddTeam(t *testing.T) {
+	testCases := []struct {
+		test        string
+		group       *entity.Group
+		expectedErr error
+	}{
+		{"Team name required", &entity.Group{ID: anotherGroup.ID, Name: ""}, nil},
+		{"Team already exists", exampleGroup, repository.ErrTeamAlreadyExists},
+		{"Team successfully added", anotherGroup, nil},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.test, func(t *testing.T) {
+			is := is.New(t)
+			s, _ := NewRosterService()
+			_ = s.AddTeam(exampleGroup)
+
+			err := s.AddTeam(tc.group)
+
+			is.Equal(err, tc.expectedErr)
+		})
+	}
+}
+
 func TestRosterService_AssignPlayerToTeam(t *testing.T) {
 	testCases := []struct {
 		test                string

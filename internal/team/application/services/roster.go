@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/logan-connolly/teammate/internal/entity"
+	"github.com/logan-connolly/teammate/internal/team/domain/model"
 	"github.com/logan-connolly/teammate/internal/team/domain/repository"
 	"github.com/logan-connolly/teammate/internal/team/infrastructure/memory"
 )
@@ -44,6 +45,26 @@ func NewRosterService() (*RosterService, error) {
 		}
 	}
 	return s, nil
+}
+
+// AddPlayer initializes a new player to the repository if valid.
+func (s *RosterService) AddPlayer(player *entity.Person) error {
+	p, err := model.NewPlayer(player)
+	if err != nil {
+		return err
+	}
+
+	return s.players.Add(p)
+}
+
+// AddTeam initializes a new team to the repository if valid.
+func (s *RosterService) AddTeam(team *entity.Group) error {
+	t, err := model.NewTeam(team)
+	if err != nil {
+		return err
+	}
+
+	return s.teams.Add(t)
 }
 
 // AssignPlayerToTeam assigns player to team's roster.
