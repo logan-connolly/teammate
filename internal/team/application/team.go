@@ -6,7 +6,7 @@ import (
 
 // TeamApplication holds all services related to team management.
 type TeamApplication struct {
-	rosterService services.RosterService
+	rosterService *services.RosterService
 }
 
 // NewTeamApplication intitializes the team application.
@@ -16,5 +16,5 @@ func NewTeamApplication() (*TeamApplication, error) {
 		return &TeamApplication{}, services.ErrInvalidRosterConfig
 	}
 
-	return &TeamApplication{rosterService: *rs}, nil
+	return &TeamApplication{rosterService: rs}, nil
 }
