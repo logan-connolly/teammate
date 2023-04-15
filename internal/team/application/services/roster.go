@@ -10,8 +10,22 @@ import (
 
 var ErrInvalidRosterConfig = errors.New("services: invalid roster configuration")
 
+// ServiceConfigs defines the configurations to intialize the service with.
+var ServiceConfigs = []RosterConfiguration{
+	WithMemoryRepositories(),
+}
+
 // RosterConfiguration is a function that modifies the service.
 type RosterConfiguration func(s *RosterService) error
+
+// WithMemoryRepositories attaches in memory repostories to service.
+func WithMemoryRepositories() RosterConfiguration {
+	return func(s *RosterService) error {
+		s.players = memory.NewMemoryPlayerRepository()
+		s.teams = memory.NewMemoryTeamRepository()
+		return nil
+	}
+}
 
 // RosterService is a implementation of the RosterService.
 type RosterService struct {
@@ -20,10 +34,10 @@ type RosterService struct {
 }
 
 // NewRosterService accepts configs and returns a new service.
-func NewRosterService(cfgs ...RosterConfiguration) (*RosterService, error) {
+func NewRosterService() (*RosterService, error) {
 	s := &RosterService{}
 
-	for _, cfg := range cfgs {
+	for _, cfg := range ServiceConfigs {
 		err := cfg(s)
 		if err != nil {
 			return nil, err
@@ -80,32 +94,4 @@ func (s *RosterService) UnassignPlayerFromTeam(team *entity.Group, player *entit
 	s.players.Update(p)
 
 	return nil
-}
-
-// WithPlayerRepository applies a given player repository to the service.
-func WithPlayerRepository(r repository.PlayerRepository) RosterConfiguration {
-	return func(s *RosterService) error {
-		s.players = r
-		return nil
-	}
-}
-
-// WithMemoryPlayerRepository applies a memory player repository to the service.
-func WithMemoryPlayerRepository() RosterConfiguration {
-	r := memory.NewMemoryPlayerRepository()
-	return WithPlayerRepository(r)
-}
-
-// WithTeamRepository applies a given team repository to the service.
-func WithTeamRepository(r repository.TeamRepository) RosterConfiguration {
-	return func(s *RosterService) error {
-		s.teams = r
-		return nil
-	}
-}
-
-// WithMemoryTeamRepository applies a memory team repository to the service.
-func WithMemoryTeamRepository() RosterConfiguration {
-	r := memory.NewMemoryTeamRepository()
-	return WithTeamRepository(r)
 }

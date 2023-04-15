@@ -7,7 +7,7 @@ import (
 	"github.com/matryer/is"
 )
 
-func withInvalidMemoryConfig() services.RosterConfiguration {
+func withInvalidConfig() services.RosterConfiguration {
 	return func(s *services.RosterService) error {
 		return services.ErrInvalidRosterConfig
 	}
@@ -22,14 +22,13 @@ func TestTeamApplication(t *testing.T) {
 
 	t.Run("Init failure due to bad roster service config", func(t *testing.T) {
 		is := is.New(t)
-		originalMemoryConfigs := memoryConfigs
-		memoryConfigs = []services.RosterConfiguration{withInvalidMemoryConfig()}
+		originalServiceConfigs := services.ServiceConfigs
+		services.ServiceConfigs = []services.RosterConfiguration{withInvalidConfig()}
 
 		_, err := NewTeamApplication()
 
 		is.Equal(err, services.ErrInvalidRosterConfig)
-
 		// clean up memoryConfigs
-		memoryConfigs = originalMemoryConfigs
+		services.ServiceConfigs = originalServiceConfigs
 	})
 }

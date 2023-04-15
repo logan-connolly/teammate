@@ -17,30 +17,29 @@ var (
 	anotherPerson = &entity.Person{ID: uuid.MustParse("d38ad10b-58cc-0372-8567-0e02b2c3d479"), Name: "Jackie"}
 )
 
-func withBadConfig() RosterConfiguration {
-	return func(s *RosterService) error {
-		return ErrInvalidRosterConfig
-	}
-}
-
 func TestNewRosterService(t *testing.T) {
-	testCases := []struct {
-		test        string
-		testConfig  func() RosterConfiguration
-		expectedErr error
-	}{
-		{"With in-memory player repository", WithMemoryPlayerRepository, nil},
-		{"With in-memory team repository", WithMemoryTeamRepository, nil},
-		{"With bad config", withBadConfig, ErrInvalidRosterConfig},
-	}
+	t.Run("Create service with defaults", func(t *testing.T) {
+		is := is.New(t)
+		_, err := NewRosterService()
+		is.NoErr(err)
+	})
 
-	for _, tc := range testCases {
-		t.Run(tc.test, func(t *testing.T) {
-			is := is.New(t)
-			_, err := NewRosterService(tc.testConfig())
-			is.Equal(tc.expectedErr, err)
-		})
-	}
+	t.Run("Create service with bad config", func(t *testing.T) {
+		is := is.New(t)
+		withInvalidConfig := func() RosterConfiguration {
+			return func(s *RosterService) error {
+				return ErrInvalidRosterConfig
+			}
+		}
+		originalServiceConfigs := ServiceConfigs
+		ServiceConfigs = []RosterConfiguration{withInvalidConfig()}
+
+		_, err := NewRosterService()
+
+		is.Equal(err, ErrInvalidRosterConfig)
+		// clean up ServiceConfigs
+		ServiceConfigs = originalServiceConfigs
+	})
 }
 
 func TestRosterService_AssignPlayerToTeam(t *testing.T) {
@@ -64,7 +63,7 @@ func TestRosterService_AssignPlayerToTeam(t *testing.T) {
 			is := is.New(t)
 
 			// initialize roster service
-			s, err := NewRosterService(WithMemoryPlayerRepository(), WithMemoryTeamRepository())
+			s, err := NewRosterService()
 
 			// instantiate player and team aggregate
 			player, _ := model.NewPlayer(examplePerson)
@@ -110,7 +109,7 @@ func TestRosterService_UnassignPlayerToTeam(t *testing.T) {
 			is := is.New(t)
 
 			// initialize roster service
-			s, err := NewRosterService(WithMemoryPlayerRepository(), WithMemoryTeamRepository())
+			s, err := NewRosterService()
 
 			// instantiate player and team aggregate
 			player, _ := model.NewPlayer(examplePerson)
