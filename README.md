@@ -1,6 +1,6 @@
 <h1 align=center>teammate 🏅</h1>
 
-<p align=center>Minimal, libre team management software.</p>
+<p align=center>Minimal, libre team sport management software.</p>
 
 <p align=center>
   <a href="https://www.gnu.org/licenses/agpl-3.0" target="_blank">
@@ -24,6 +24,7 @@ The goal of _teammate_ is to provide a fast and stable application that can be e
 
 ## Features
 
+- No ads and no tracking
 - Manage team rosters
 - Create events for practice, games, tournaments, etc.
 - Track player attendance for events
