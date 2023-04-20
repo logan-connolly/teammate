@@ -3,7 +3,7 @@ package access
 import (
 	"testing"
 
-	"github.com/logan-connolly/teammate/internal/access/application/services"
+	"git.sr.ht/~loges/teammate/internal/access/application/services"
 	"github.com/matryer/is"
 )
 

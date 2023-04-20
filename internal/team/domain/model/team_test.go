@@ -3,9 +3,9 @@ package model
 import (
 	"testing"
 
+	"git.sr.ht/~loges/teammate/internal/entity"
+	"git.sr.ht/~loges/teammate/internal/team/domain/event"
 	"github.com/google/uuid"
-	"github.com/logan-connolly/teammate/internal/entity"
-	"github.com/logan-connolly/teammate/internal/team/domain/event"
 	"github.com/matryer/is"
 )
 

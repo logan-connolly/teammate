@@ -3,9 +3,9 @@ package memory
 import (
 	"sync"
 
-	"github.com/logan-connolly/teammate/internal/access/domain/event"
-	"github.com/logan-connolly/teammate/internal/access/domain/model"
-	"github.com/logan-connolly/teammate/internal/access/domain/repository"
+	"git.sr.ht/~loges/teammate/internal/access/domain/event"
+	"git.sr.ht/~loges/teammate/internal/access/domain/model"
+	"git.sr.ht/~loges/teammate/internal/access/domain/repository"
 )
 
 // MemoryUserRepository is an in-memory user repository.

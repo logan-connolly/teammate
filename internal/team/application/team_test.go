@@ -3,9 +3,9 @@ package application
 import (
 	"testing"
 
+	"git.sr.ht/~loges/teammate/internal/entity"
+	"git.sr.ht/~loges/teammate/internal/team/application/services"
 	"github.com/google/uuid"
-	"github.com/logan-connolly/teammate/internal/entity"
-	"github.com/logan-connolly/teammate/internal/team/application/services"
 	"github.com/matryer/is"
 )
 

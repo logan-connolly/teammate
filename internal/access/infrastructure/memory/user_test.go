@@ -3,10 +3,10 @@ package memory
 import (
 	"testing"
 
+	"git.sr.ht/~loges/teammate/internal/access/domain/event"
+	"git.sr.ht/~loges/teammate/internal/access/domain/model"
+	"git.sr.ht/~loges/teammate/internal/access/domain/repository"
 	"github.com/google/uuid"
-	"github.com/logan-connolly/teammate/internal/access/domain/event"
-	"github.com/logan-connolly/teammate/internal/access/domain/model"
-	"github.com/logan-connolly/teammate/internal/access/domain/repository"
 	"github.com/matryer/is"
 )
 

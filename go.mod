@@ -1,4 +1,4 @@
-module github.com/logan-connolly/teammate
+module git.sr.ht/~loges/teammate
 
 go 1.19
 

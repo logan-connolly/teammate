@@ -3,10 +3,10 @@ package services
 import (
 	"testing"
 
+	"git.sr.ht/~loges/teammate/internal/access/domain/model"
+	"git.sr.ht/~loges/teammate/internal/access/domain/repository"
+	"git.sr.ht/~loges/teammate/internal/entity"
 	"github.com/google/uuid"
-	"github.com/logan-connolly/teammate/internal/access/domain/model"
-	"github.com/logan-connolly/teammate/internal/access/domain/repository"
-	"github.com/logan-connolly/teammate/internal/entity"
 	"github.com/matryer/is"
 )
 

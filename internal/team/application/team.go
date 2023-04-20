@@ -1,7 +1,7 @@
 package application
 
 import (
-	"github.com/logan-connolly/teammate/internal/team/application/services"
+	"git.sr.ht/~loges/teammate/internal/team/application/services"
 )
 
 // TeamApplication holds all services related to team management.

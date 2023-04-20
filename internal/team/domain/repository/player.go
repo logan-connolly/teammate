@@ -3,8 +3,8 @@ package repository
 import (
 	"errors"
 
-	"github.com/logan-connolly/teammate/internal/entity"
-	"github.com/logan-connolly/teammate/internal/team/domain/model"
+	"git.sr.ht/~loges/teammate/internal/entity"
+	"git.sr.ht/~loges/teammate/internal/team/domain/model"
 )
 
 var (

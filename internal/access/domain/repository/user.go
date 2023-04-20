@@ -3,7 +3,7 @@ package repository
 import (
 	"errors"
 
-	"github.com/logan-connolly/teammate/internal/access/domain/model"
+	"git.sr.ht/~loges/teammate/internal/access/domain/model"
 )
 
 var (

@@ -3,10 +3,10 @@ package services
 import (
 	"errors"
 
-	"github.com/logan-connolly/teammate/internal/entity"
-	"github.com/logan-connolly/teammate/internal/team/domain/model"
-	"github.com/logan-connolly/teammate/internal/team/domain/repository"
-	"github.com/logan-connolly/teammate/internal/team/infrastructure/memory"
+	"git.sr.ht/~loges/teammate/internal/entity"
+	"git.sr.ht/~loges/teammate/internal/team/domain/model"
+	"git.sr.ht/~loges/teammate/internal/team/domain/repository"
+	"git.sr.ht/~loges/teammate/internal/team/infrastructure/memory"
 )
 
 var ErrInvalidRosterConfig = errors.New("services: invalid roster configuration")

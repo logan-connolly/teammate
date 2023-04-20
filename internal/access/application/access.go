@@ -1,6 +1,6 @@
 package access
 
-import "github.com/logan-connolly/teammate/internal/access/application/services"
+import "git.sr.ht/~loges/teammate/internal/access/application/services"
 
 // AccessApplication holds all services related to access management.
 type AccessApplication struct {
